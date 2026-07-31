@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../core/services/data.service';
 import { ScrollService } from '../../core/services/scroll.service';
+import { ThemeService, AccentColor } from '../../core/services/theme.service';
 import { NavLink } from '../../core/models/site-config.model';
 
 @Component({
@@ -16,16 +17,16 @@ export class NavigationComponent implements OnInit, OnDestroy {
   activeSection = 'home';
   isMobileMenuOpen = false;
   cmdKey = '⌘';
-  navLinks: NavLink[] = [];
+  get navLinks(): NavLink[] { return this.dataService.siteConfig.navLinks; }
   private ticking = false;
 
   constructor(
     private dataService: DataService,
-    private scrollService: ScrollService
+    private scrollService: ScrollService,
+    public themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
-    this.navLinks = this.dataService.siteConfig.navLinks;
     const isMac = navigator.userAgent.includes('Mac') || (navigator as any).platform?.includes('Mac');
     if (!isMac) this.cmdKey = 'Ctrl';
   }

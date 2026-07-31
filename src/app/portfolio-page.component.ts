@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 import { SplashScreenComponent } from './shared/splash-screen/splash-screen.component';
 import { StarryBackgroundComponent } from './shared/starry-background/starry-background.component';
@@ -8,6 +10,7 @@ import { ScrollProgressComponent } from './shared/scroll-progress/scroll-progres
 import { NavigationComponent } from './shared/navigation/navigation.component';
 import { CommandPaletteComponent } from './shared/command-palette/command-palette.component';
 import { FooterComponent } from './shared/footer/footer.component';
+import { ResumeModalComponent } from './shared/resume-modal/resume-modal.component';
 
 import { HeroComponent } from './features/hero/hero.component';
 import { AboutComponent } from './features/about/about.component';
@@ -28,6 +31,7 @@ import { ContactComponent } from './features/contact/contact.component';
     NavigationComponent,
     CommandPaletteComponent,
     FooterComponent,
+    ResumeModalComponent,
     HeroComponent,
     AboutComponent,
     SkillsComponent,
@@ -48,7 +52,7 @@ import { ContactComponent } from './features/contact/contact.component';
 
     <!-- Main Sections -->
     <main>
-      <app-hero></app-hero>
+      <app-hero (openResume)="showResumeModal = true"></app-hero>
       <app-about></app-about>
       <app-skills></app-skills>
       <app-projects></app-projects>
@@ -58,6 +62,12 @@ import { ContactComponent } from './features/contact/contact.component';
 
     <!-- Footer -->
     <app-footer></app-footer>
+
+    <!-- Resume Modal -->
+    <app-resume-modal
+      [isOpen]="showResumeModal"
+      (close)="showResumeModal = false">
+    </app-resume-modal>
 
     <!-- Global Noise Overlay -->
     <div class="noise-overlay" aria-hidden="true"></div>
@@ -69,4 +79,14 @@ import { ContactComponent } from './features/contact/contact.component';
     }
   `]
 })
-export class PortfolioPageComponent {}
+export class PortfolioPageComponent implements OnInit {
+  private http = inject(HttpClient);
+  showResumeModal = false;
+
+  ngOnInit(): void {
+    // Track page view event
+    this.http.post(`${environment.apiUrl}/analytics/track`, { type: 'page_view' }).subscribe({
+      error: () => {}
+    });
+  }
+}

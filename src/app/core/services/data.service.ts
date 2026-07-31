@@ -47,7 +47,7 @@ export class DataService {
   coursesSignal = signal<Course[]>(this.loadFromStorage('courses', this.defaultCourses()));
   awardsSignal = signal<Award[]>(this.loadFromStorage('awards', this.defaultAwards()));
   educationSignal = signal<Education[]>(this.loadFromStorage('education', this.defaultEducation()));
-  experienceSignal = signal<Experience[]>([]);
+  experienceSignal = signal<Experience[]>(this.loadFromStorage('experience', this.defaultExperience()));
   messagesSignal = signal<ContactMessage[]>(this.loadFromStorage('messages', this.defaultMessages()));
   mediaSignal = signal<MediaItem[]>(this.loadFromStorage('media', this.defaultMedia()));
   seoSignal = signal<SeoSetting[]>(this.loadFromStorage('seo', this.defaultSeo()));
@@ -111,6 +111,20 @@ export class DataService {
         this.siteConfigSignal.set(config);
         this.saveToStorage('siteConfig', config);
       }
+
+      // Education
+      const education = await firstValueFrom(this.http.get<Education[]>(`${environment.apiUrl}/education`));
+      if (education && education.length > 0) {
+        this.educationSignal.set(education);
+        this.saveToStorage('education', education);
+      }
+
+      // Experience
+      const experience = await firstValueFrom(this.http.get<Experience[]>(`${environment.apiUrl}/experience`));
+      if (experience && experience.length > 0) {
+        this.experienceSignal.set(experience);
+        this.saveToStorage('experience', experience);
+      }
     } catch {
       console.warn('[DataService] Express API Backend offline, running with cached data.');
     }
@@ -122,7 +136,7 @@ export class DataService {
     this.saveToStorage('siteConfig', config);
     try {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/settings`, config, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   // Projects
@@ -138,7 +152,7 @@ export class DataService {
         const synced = [res, ...this.projectsSignal().filter(p => p.id !== newProject.id)];
         this.projectsSignal.set(synced);
       }
-    } catch {}
+    } catch { }
   }
 
   async updateProject(id: string, project: Partial<Project>): Promise<void> {
@@ -148,7 +162,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/projects/${id}`, project, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async deleteProject(id: string): Promise<void> {
@@ -158,7 +172,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.delete(`${environment.apiUrl}/projects/${id}`, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   // Skills
@@ -170,7 +184,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.post(`${environment.apiUrl}/skills`, skill, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async updateSkill(id: string, skill: Partial<Skill>): Promise<void> {
@@ -180,7 +194,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.put(`${environment.apiUrl}/skills/${id}`, skill, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async deleteSkill(id: string): Promise<void> {
@@ -190,7 +204,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.delete(`${environment.apiUrl}/skills/${id}`, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   // Courses
@@ -202,7 +216,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/courses`, course, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async deleteCourse(id: string): Promise<void> {
@@ -212,7 +226,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/courses/${id}`, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   // Awards
@@ -224,7 +238,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/awards`, award, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async deleteAward(id: string): Promise<void> {
@@ -234,7 +248,71 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/awards/${id}`, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
+  }
+
+  // Education
+  async addEducation(edu: Omit<Education, 'id'>): Promise<void> {
+    const newEdu: Education = { ...edu, id: Date.now().toString() };
+    const updated = [newEdu, ...this.educationSignal()];
+    this.educationSignal.set(updated);
+    this.saveToStorage('education', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/education`, edu, { headers: this.getAuthHeaders() }));
+    } catch { }
+  }
+
+  async updateEducation(id: string, edu: Partial<Education>): Promise<void> {
+    const updated = this.educationSignal().map(e => e.id === id ? { ...e, ...edu } : e);
+    this.educationSignal.set(updated);
+    this.saveToStorage('education', updated);
+
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/education/${id}`, edu, { headers: this.getAuthHeaders() }));
+    } catch { }
+  }
+
+  async deleteEducation(id: string): Promise<void> {
+    const updated = this.educationSignal().filter(e => e.id !== id);
+    this.educationSignal.set(updated);
+    this.saveToStorage('education', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/education/${id}`, { headers: this.getAuthHeaders() }));
+    } catch { }
+  }
+
+  // Experience
+  async addExperience(exp: Omit<Experience, 'id'>): Promise<void> {
+    const newExp: Experience = { ...exp, id: Date.now().toString() };
+    const updated = [newExp, ...this.experienceSignal()];
+    this.experienceSignal.set(updated);
+    this.saveToStorage('experience', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/experience`, exp, { headers: this.getAuthHeaders() }));
+    } catch { }
+  }
+
+  async updateExperience(id: string, exp: Partial<Experience>): Promise<void> {
+    const updated = this.experienceSignal().map(e => e.id === id ? { ...e, ...exp } : e);
+    this.experienceSignal.set(updated);
+    this.saveToStorage('experience', updated);
+
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/experience/${id}`, exp, { headers: this.getAuthHeaders() }));
+    } catch { }
+  }
+
+  async deleteExperience(id: string): Promise<void> {
+    const updated = this.experienceSignal().filter(e => e.id !== id);
+    this.experienceSignal.set(updated);
+    this.saveToStorage('experience', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/experience/${id}`, { headers: this.getAuthHeaders() }));
+    } catch { }
   }
 
   // Messages
@@ -251,7 +329,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.post(`${environment.apiUrl}/messages`, msg));
-    } catch {}
+    } catch { }
   }
 
   async toggleMessageRead(id: string): Promise<void> {
@@ -261,7 +339,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.patch(`${environment.apiUrl}/messages/${id}/read`, {}, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   async deleteMessage(id: string): Promise<void> {
@@ -271,7 +349,7 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.delete(`${environment.apiUrl}/messages/${id}`, { headers: this.getAuthHeaders() }));
-    } catch {}
+    } catch { }
   }
 
   // Media
@@ -488,12 +566,27 @@ export class DataService {
     return [
       {
         id: '1',
-        institution: 'University of Egypt',
+        institution: 'October 6 University',
         degree: "Bachelor's Degree",
-        field: 'Computer Science',
-        startDate: '2021-09-01',
-        endDate: '2025-06-30',
-        description: 'Comprehensive degree in Computer Science with focus on mobile development, software engineering, and AI.',
+        field: 'Computer Science & Information Systems',
+        startDate: '2022-09-01',
+        endDate: '2026-06-30',
+        description: 'Bachelor of Computer Science in Information Systems.',
+      },
+    ];
+  }
+
+  private defaultExperience(): Experience[] {
+    return [
+      {
+        id: '1',
+        role: 'Flutter Developer & Software Engineer',
+        company: 'Freelance & Projects',
+        startDate: '2023-01-01',
+        endDate: 'Present',
+        description: 'Building high-performance, pixel-perfect mobile applications with Flutter, Dart, Firebase, and Clean Architecture.',
+        techStack: ['Flutter', 'Dart', 'Firebase', 'BLoC', 'RESTful APIs'],
+        order: 1,
       },
     ];
   }

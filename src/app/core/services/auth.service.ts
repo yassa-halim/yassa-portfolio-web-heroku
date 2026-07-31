@@ -33,13 +33,8 @@ export class AuthService {
         this.isLoggedIn.set(true);
         return true;
       }
-    } catch {
-      // Fallback for offline local dev mode
-      if (password === 'admin123' || password === 'yassa2025') {
-        localStorage.setItem(this.TOKEN_KEY, 'demo-admin-session-token');
-        this.isLoggedIn.set(true);
-        return true;
-      }
+    } catch (error) {
+      console.error('[AuthService] Login error:', error);
     }
     return false;
   }

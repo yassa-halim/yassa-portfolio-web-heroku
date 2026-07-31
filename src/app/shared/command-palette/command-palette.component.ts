@@ -38,7 +38,17 @@ export class CommandPaletteComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Build search index
+    // Listen for open command
+    this.sub = this.scrollService.commandPaletteOpen.subscribe(() => {
+      this.open();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+
+  private buildSearchIndex(): void {
     const nav = this.dataService.siteConfig.navLinks.map(link => ({
       id: `nav-${link.href}`,
       title: link.label,
@@ -69,7 +79,7 @@ export class CommandPaletteComponent implements OnInit, OnDestroy {
         title: 'Download CV',
         subtitle: 'Download resume as PDF',
         category: 'Actions',
-        action: () => window.open('/assets/resume.pdf', '_blank'),
+        action: () => window.open('/resume.pdf', '_blank'),
       },
       {
         id: 'action-contact',
@@ -81,22 +91,13 @@ export class CommandPaletteComponent implements OnInit, OnDestroy {
     ];
 
     this.allItems = [...nav, ...projects, ...skills, ...actions];
-    this.updateResults();
-
-    // Listen for open command
-    this.sub = this.scrollService.commandPaletteOpen.subscribe(() => {
-      this.open();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
   }
 
   open(): void {
     this.isOpen = true;
     this.query = '';
     this.selectedIndex = 0;
+    this.buildSearchIndex();
     this.updateResults();
     setTimeout(() => this.searchInput?.nativeElement.focus(), 50);
   }

@@ -20,6 +20,11 @@
 
     <!-- Actions -->
     <div class="actions">
+      <!-- Theme Switcher Button -->
+      <button class="themeToggleBtn" (click)="themeService.toggleMode()" [attr.aria-label]="'Switch theme mode'">
+        {{ themeService.mode() === 'dark' ? '☀️' : '🌙' }}
+      </button>
+
       <button class="cmdButton" (click)="openCommandPalette()" aria-label="Open command palette">
         <kbd>{{ cmdKey }}</kbd>
         <span>K</span>

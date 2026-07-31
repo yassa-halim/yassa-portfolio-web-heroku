@@ -15,7 +15,7 @@ type SubmitState = 'idle' | 'sending' | 'compiling' | 'success' | 'error';
   styleUrls: ['./contact.component.css'],
 })
 export class ContactComponent implements OnInit {
-  config!: SiteConfig;
+  get config(): SiteConfig { return this.dataService.siteConfig; }
 
   formData: ContactForm = {
     name: '',
@@ -32,9 +32,7 @@ export class ContactComponent implements OnInit {
     private contactService: ContactService
   ) {}
 
-  ngOnInit(): void {
-    this.config = this.dataService.siteConfig;
-  }
+  ngOnInit(): void {}
 
   setFocus(field: string | null): void {
     this.focusedField = field;
@@ -47,7 +45,19 @@ export class ContactComponent implements OnInit {
   onSubmit(): void {
     if (this.submitState !== 'idle') return;
 
+    if (!this.formData.name || !this.formData.email || !this.formData.message) {
+      return;
+    }
+
     this.submitState = 'sending';
+
+    // Save message to Express backend & local storage
+    this.dataService.addMessage({
+      name: this.formData.name,
+      email: this.formData.email,
+      subject: this.formData.subject || 'Portfolio Inquiry',
+      body: this.formData.message,
+    });
 
     setTimeout(() => {
       this.submitState = 'compiling';
@@ -61,12 +71,10 @@ export class ContactComponent implements OnInit {
           }, 3000);
         },
         error: () => {
-          // If Formspree placeholder URL is used, gracefully mock success or show feedback
-          this.submitState = 'success';
+          this.submitState = 'error';
           setTimeout(() => {
             this.submitState = 'idle';
-            this.formData = { name: '', email: '', subject: '', message: '' };
-          }, 3000);
+          }, 4000);
         },
       });
     }, 600);

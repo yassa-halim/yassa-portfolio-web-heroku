@@ -1,8 +1,10 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { DataService } from '../../core/services/data.service';
 import { ScrollService } from '../../core/services/scroll.service';
 import { SiteConfig } from '../../core/models/site-config.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-hero',
@@ -13,6 +15,9 @@ import { SiteConfig } from '../../core/models/site-config.model';
 })
 export class HeroComponent implements OnInit, OnDestroy {
   @ViewChild('heroSection') heroRef!: ElementRef<HTMLDivElement>;
+  @Output() openResume = new EventEmitter<void>();
+
+  private http = inject(HttpClient);
 
   get config(): SiteConfig { return this.dataService.siteConfig; }
   get roles(): string[] { return this.config?.roles || ['Flutter Developer', 'Software Engineer']; }
@@ -96,7 +101,10 @@ export class HeroComponent implements OnInit, OnDestroy {
   }
 
   handleCta(href: string): void {
-    if (href.startsWith('#')) {
+    if (href.includes('resume') || href.includes('cv') || href.endsWith('.pdf')) {
+      this.openResume.emit();
+      this.http.post(`${environment.apiUrl}/analytics/track`, { type: 'cv_download' }).subscribe({ error: () => {} });
+    } else if (href.startsWith('#')) {
       this.scrollService.scrollToHref(href);
     } else {
       window.open(href, '_blank');

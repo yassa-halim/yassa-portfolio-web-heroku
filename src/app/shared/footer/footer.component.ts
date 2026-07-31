@@ -12,8 +12,8 @@ import { NavLink, SiteConfig } from '../../core/models/site-config.model';
   styleUrls: ['./footer.component.css'],
 })
 export class FooterComponent implements OnInit {
-  config!: SiteConfig;
-  navLinks: NavLink[] = [];
+  get config(): SiteConfig { return this.dataService.siteConfig; }
+  get navLinks(): NavLink[] { return this.config?.navLinks || []; }
   currentYear = new Date().getFullYear();
 
   constructor(
@@ -21,10 +21,7 @@ export class FooterComponent implements OnInit {
     private scrollService: ScrollService
   ) {}
 
-  ngOnInit(): void {
-    this.config = this.dataService.siteConfig;
-    this.navLinks = this.config.navLinks;
-  }
+  ngOnInit(): void {}
 
   navigate(href: string): void {
     this.scrollService.scrollToHref(href);

@@ -75,11 +75,22 @@
         </svg>
       </button>
 
-      <!-- Hero Area -->
+      <!-- Hero Area / Mobile Device Mockup Frame -->
       <div class="modalHero"
-           [style.background-color]="selectedProject.accentColor + '15'"
-           [style.background-image]="selectedProject.coverImage ? 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.85)), url(' + selectedProject.coverImage + ')' : 'none'"
-           style="background-size: cover; background-position: center">
+           [style.background-color]="selectedProject.accentColor + '15'">
+        
+        <!-- Mobile Device Frame Mockup if Mobile App -->
+        <div *ngIf="selectedProject.category === 'Mobile App'" class="mobileDeviceFrame">
+          <div class="deviceNotch">
+            <span class="camera"></span>
+            <span class="speaker"></span>
+          </div>
+          <div class="deviceScreen">
+            <img [src]="selectedProject.coverImage" [alt]="selectedProject.title" class="screenImage"/>
+          </div>
+          <div class="deviceHomeBar"></div>
+        </div>
+
         <div class="modalHeroContent">
           <span class="modalCategory">{{ selectedProject.category }}</span>
           <h2 class="modalTitle">{{ selectedProject.title }}</h2>
