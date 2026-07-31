@@ -11,17 +11,17 @@ import { Project } from '../../core/models/project.model';
   styleUrls: ['./projects.component.css'],
 })
 export class ProjectsComponent implements OnInit {
-  projects: Project[] = [];
-  categories: string[] = [];
+  get projects(): Project[] { return this.dataService.projects; }
   activeFilter = 'All';
   selectedProject: Project | null = null;
 
+  get categories(): string[] {
+    return ['All', ...Array.from(new Set(this.projects.map(p => p.category)))];
+  }
+
   constructor(private dataService: DataService) {}
 
-  ngOnInit(): void {
-    this.projects = this.dataService.projects;
-    this.categories = ['All', ...Array.from(new Set(this.projects.map(p => p.category)))];
-  }
+  ngOnInit(): void {}
 
   get filteredProjects(): Project[] {
     return this.projects.filter(

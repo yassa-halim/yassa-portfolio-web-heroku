@@ -11,9 +11,9 @@ import { Course, Award, Education } from '../../core/models/site-config.model';
   styleUrls: ['./credentials.component.css'],
 })
 export class CredentialsComponent implements OnInit, OnDestroy {
-  courses: Course[] = [];
-  awards: Award[] = [];
-  education: Education[] = [];
+  get courses(): Course[] { return this.dataService.courses; }
+  get awards(): Award[] { return this.dataService.awards; }
+  get education(): Education[] { return this.dataService.education; }
   visibleItems = new Set<string>();
   confettiFired = false;
   confettiParticles: { left: string; delay: string; duration: string; color: string }[] = [];
@@ -23,9 +23,7 @@ export class CredentialsComponent implements OnInit, OnDestroy {
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
-    this.courses   = this.dataService.courses;
-    this.awards    = this.dataService.awards;
-    this.education = this.dataService.education;
+
 
     // Build confetti
     const colors = ['var(--accent)', 'var(--highlight)', 'var(--secondary)', '#22c55e', '#3b82f6'];

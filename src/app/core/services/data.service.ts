@@ -337,7 +337,7 @@ export class DataService {
         name: 'Yassa Halim Said',
         subtitle: 'Building pixel-perfect mobile experiences with Flutter',
         cta: [
-          { label: 'Download CV', href: '/assets/resume.pdf', variant: 'primary' },
+          { label: 'Download CV', href: '/resume.pdf', variant: 'primary' },
           { label: 'Explore Projects', href: '#projects', variant: 'outline' },
           { label: 'Contact Me', href: '#contact', variant: 'ghost' },
         ],

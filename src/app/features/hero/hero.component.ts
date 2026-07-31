@@ -14,8 +14,8 @@ import { SiteConfig } from '../../core/models/site-config.model';
 export class HeroComponent implements OnInit, OnDestroy {
   @ViewChild('heroSection') heroRef!: ElementRef<HTMLDivElement>;
 
-  config!: SiteConfig;
-  roles: string[] = [];
+  get config(): SiteConfig { return this.dataService.siteConfig; }
+  get roles(): string[] { return this.config?.roles || ['Flutter Developer', 'Software Engineer']; }
   heroVisible = false;
   widgetNodes: boolean[] = [];
 
@@ -35,9 +35,6 @@ export class HeroComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.config = this.dataService.siteConfig;
-    this.roles = [...this.config.roles];
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (prefersReducedMotion) {

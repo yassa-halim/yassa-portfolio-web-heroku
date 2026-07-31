@@ -12,17 +12,17 @@ import { Skill } from '../../core/models/site-config.model';
   styleUrls: ['./skills.component.css'],
 })
 export class SkillsComponent implements OnInit {
-  skills: Skill[] = [];
+  get skills(): Skill[] { return this.dataService.skills; }
   activeFilter = 'All';
   searchQuery = '';
-  categories: string[] = [];
+
+  get categories(): string[] {
+    return ['All', ...Array.from(new Set(this.skills.map(s => s.category)))];
+  }
 
   constructor(private dataService: DataService) {}
 
-  ngOnInit(): void {
-    this.skills = this.dataService.skills;
-    this.categories = ['All', ...Array.from(new Set(this.skills.map(s => s.category)))];
-  }
+  ngOnInit(): void {}
 
   get filteredSkills(): Skill[] {
     return this.skills.filter(s => {
