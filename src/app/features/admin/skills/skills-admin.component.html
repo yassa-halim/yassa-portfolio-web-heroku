@@ -1,0 +1,85 @@
+<div class="header">
+  <div class="title-group">
+    <h1>Manage Skills</h1>
+    <p>Add, edit proficiency level, or categorize your skills</p>
+  </div>
+  <button class="btn btn-primary" (click)="openAddModal()">+ Add New Skill</button>
+</div>
+
+<!-- Table -->
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Skill Name</th>
+        <th>Category</th>
+        <th>Proficiency</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of dataService.skills">
+        <td>
+          <span style="font-size: 1.2rem; margin-right: 8px">{{ s.icon }}</span>
+          <strong style="color: var(--white)">{{ s.name }}</strong>
+        </td>
+        <td><span class="tag">{{ s.category }}</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="s.proficiency"></div>
+            </div>
+            <span style="font-family: var(--font-mono); font-size: 0.85rem">{{ s.proficiency }}%</span>
+          </div>
+        </td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-secondary btn-sm" (click)="openEditModal(s)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteSkill(s.id)">Delete</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingId ? 'Edit Skill' : 'Add New Skill' }}</h2>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+
+    <form (ngSubmit)="saveSkill()" class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Skill Name *</label>
+          <input type="text" [(ngModel)]="formSkill.name" name="name" required class="form-control" placeholder="e.g. Flutter" />
+        </div>
+        <div class="form-group">
+          <label>Icon / Emoji</label>
+          <input type="text" [(ngModel)]="formSkill.icon" name="icon" class="form-control" placeholder="e.g. 💎" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="formSkill.category" name="category" class="form-control">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Proficiency ({{ formSkill.proficiency }}%)</label>
+          <input type="range" [(ngModel)]="formSkill.proficiency" name="proficiency" min="1" max="100" class="form-control" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Skill</button>
+      </div>
+    </form>
+  </div>
+</div>

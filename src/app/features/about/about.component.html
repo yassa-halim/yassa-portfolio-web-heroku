@@ -1,0 +1,85 @@
+<section id="about" class="about" #sectionEl>
+  <!-- Midnight Sky Background -->
+  <div class="uiverseMidnightSky" aria-hidden="true">
+    <div class="skyCanvas">
+      <div class="stars stars1"></div>
+      <div class="stars stars2"></div>
+      <div class="stars stars3"></div>
+      <div class="meteor m1"></div>
+      <div class="meteor m2"></div>
+      <div class="meteor m3"></div>
+      <div class="moon"></div>
+    </div>
+  </div>
+
+  <div class="container" style="position: relative; z-index: 1">
+    <!-- Header -->
+    <div class="header">
+      <span class="sectionTag"><span class="tagDot"></span>About</span>
+      <h2 class="section-title">{{ config?.about?.title }}</h2>
+      <p class="section-subtitle">{{ config?.about?.subtitle }}</p>
+    </div>
+
+    <!-- Bio + Stats Grid -->
+    <div class="grid">
+      <!-- Bio -->
+      <div class="bio">
+        <p
+          *ngFor="let para of config?.about?.bio; let i = index; trackBy: trackByIndex"
+          class="bioText"
+          [attr.data-idx]="i"
+          [style.opacity]="isVisible(i) ? 1 : 0"
+          [style.transform]="isVisible(i) ? 'translateY(0)' : 'translateY(20px)'"
+          [style.transition]="'all 0.6s var(--ease-out-expo) ' + (i * 0.15) + 's'">
+          {{ para }}
+        </p>
+
+        <!-- Philosophy Quote -->
+        <blockquote class="philosophy" [attr.data-idx]="config?.about?.bio?.length">
+          <ng-container *ngFor="let word of philosophyWords; let i = index; trackBy: trackByIndex">
+            <span class="philosophyWord"
+                  [style.animation-delay]="getPhilosophyDelay(i)"
+                  [style.opacity]="isVisible(config.about.bio.length) ? undefined : 0">
+              {{ word }}&nbsp;
+            </span>
+          </ng-container>
+        </blockquote>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div
+          *ngFor="let stat of config?.about?.stats; let i = index; trackBy: trackByIndex"
+          class="statCard"
+          [attr.data-idx]="(config?.about?.bio?.length ?? 0) + 1 + i"
+          [style.opacity]="isVisible((config?.about?.bio?.length ?? 0) + 1 + i) ? 1 : 0"
+          [style.transform]="isVisible((config?.about?.bio?.length ?? 0) + 1 + i) ? 'translateY(0)' : 'translateY(20px)'"
+          [style.transition]="'all 0.5s var(--ease-out-expo) ' + (i * 0.1) + 's'">
+          <span class="statValue">{{ stat.value }}</span>
+          <span class="statLabel">{{ stat.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="timelineLine"></div>
+      <div
+        *ngFor="let m of milestones; let i = index; trackBy: trackByIndex"
+        class="timelineItem"
+        [attr.data-idx]="20 + i"
+        [style.opacity]="isVisible(20 + i) ? 1 : 0"
+        [style.transform]="isVisible(20 + i) ? 'translateY(0)' : 'translateY(30px)'"
+        [style.transition]="'all 0.6s var(--ease-out-expo) ' + (i * 0.15) + 's'">
+        <div class="timelineDot">
+          <div class="timelineDotInner"></div>
+        </div>
+        <div class="timelineContent">
+          <span class="timelineYear">{{ m.year }}</span>
+          <h3 class="timelineTitle">{{ m.title }}</h3>
+          <p class="timelineDesc">{{ m.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

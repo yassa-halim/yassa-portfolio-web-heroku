@@ -1,0 +1,6 @@
+<ng-container *ngIf="!isTouch">
+  <div #cursorRef class="cursor" [class.hovering]="isHovering">
+    <span *ngIf="label" class="label">{{ label }}</span>
+  </div>
+  <div #cursorDotRef class="dot"></div>
+</ng-container>

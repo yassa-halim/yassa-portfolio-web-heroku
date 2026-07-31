@@ -1,0 +1,32 @@
+<div class="header">
+  <div class="title-group">
+    <h1>Media Library</h1>
+    <p>Manage uploaded images, project covers, and assets</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px">
+  <h3 style="margin: 0 0 12px 0; font-size: 1rem; color: var(--white)">Add Media by URL</h3>
+  <div style="display: flex; gap: 12px">
+    <input type="text" [(ngModel)]="newUrl" placeholder="Enter image URL (e.g. /uploads/image.jpg or Unsplash link)" class="form-control" style="flex: 1" />
+    <button class="btn btn-primary" (click)="addMediaUrl()">+ Add Media</button>
+  </div>
+</div>
+
+<div class="media-grid">
+  <div *ngFor="let item of dataService.mediaSignal()" class="media-card">
+    <div class="preview">
+      <img [src]="item.url" [alt]="item.name" />
+    </div>
+    <div class="info">
+      <strong class="name" [title]="item.name">{{ item.name }}</strong>
+      <span class="meta">{{ item.sizeKb }} KB · {{ item.uploadedAt | date:'shortDate' }}</span>
+      <div class="actions">
+        <button class="btn btn-secondary btn-sm" (click)="copyUrl(item.id, item.url)">
+          {{ copiedId === item.id ? 'Copied ✓' : 'Copy URL' }}
+        </button>
+        <button class="btn btn-danger btn-sm" (click)="deleteMedia(item.id)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

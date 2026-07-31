@@ -1,0 +1,42 @@
+<footer class="footer">
+  <div class="container">
+    <div class="inner">
+      <!-- Brand -->
+      <div class="brand">
+        <a href="#home" class="logo" (click)="$event.preventDefault(); navigate('#home')">
+          <span class="logoIcon">Y</span>
+          <span class="logoText">yassa.dev</span>
+        </a>
+        <p class="tagline">From Code to Craft — building pixel-perfect digital experiences.</p>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="links">
+        <h4 class="linksTitle">Navigation</h4>
+        <a *ngFor="let link of navLinks; trackBy: trackByHref"
+           [href]="link.href"
+           class="link"
+           (click)="$event.preventDefault(); navigate(link.href)">
+          {{ link.label }}
+        </a>
+      </div>
+
+      <!-- Socials -->
+      <div class="socials">
+        <h4 class="linksTitle">Connect</h4>
+        <a [href]="config.socials.github"   target="_blank" rel="noopener noreferrer" class="link">GitHub</a>
+        <a [href]="config.socials.linkedin" target="_blank" rel="noopener noreferrer" class="link">LinkedIn</a>
+        <a [href]="config.socials.twitter"  target="_blank" rel="noopener noreferrer" class="link">Twitter / X</a>
+        <a [href]="'mailto:' + config.email" class="link">Email</a>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom">
+      <p class="copyright">© {{ currentYear }} {{ config.name }}. All rights reserved.</p>
+      <p class="builtWith">
+        Built with <span class="heart">♥</span> using Angular &amp; TypeScript
+      </p>
+    </div>
+  </div>
+</footer>

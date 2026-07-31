@@ -1,0 +1,31 @@
+<div class="login-root">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="brand" style="justify-content: center; margin-bottom: 1rem">
+        <div class="brand-icon">Y</div>
+        <span class="brand-text">yassa.dev</span>
+      </div>
+      <h1>Admin Dashboard</h1>
+      <p>Enter your password to access the CMS dashboard</p>
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label for="admin-password">Admin Password</label>
+        <input
+          type="password"
+          id="admin-password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Enter admin password (admin123)"
+          required
+          class="form-control"/>
+        <p *ngIf="error" class="form-error">{{ error }}</p>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="loading || !password">
+        {{ loading ? 'Authenticating...' : 'Login to Dashboard →' }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="header">
+  <div class="title-group">
+    <h1>SEO &amp; Meta Settings</h1>
+    <p>Manage title tags, meta descriptions, and search engine preview</p>
+  </div>
+</div>
+
+<div class="seo-list">
+  <div *ngFor="let s of dataService.seoSignal()" class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px">
+      <h3 style="margin: 0; color: var(--white); font-size: 1.1rem">{{ s.page }}</h3>
+      <button class="btn btn-primary btn-sm" (click)="saveSeo(s)">
+        {{ savedId === s.id ? 'Saved ✓' : 'Save SEO' }}
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label>Meta Title</label>
+      <input type="text" [(ngModel)]="s.metaTitle" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label>Meta Description</label>
+      <textarea [(ngModel)]="s.metaDescription" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Keywords</label>
+        <input type="text" [(ngModel)]="s.keywords" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label>Canonical URL</label>
+        <input type="text" [(ngModel)]="s.canonicalUrl" class="form-control" />
+      </div>
+    </div>
+  </div>
+</div>

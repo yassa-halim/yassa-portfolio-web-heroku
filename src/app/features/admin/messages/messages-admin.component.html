@@ -1,0 +1,63 @@
+<div class="header">
+  <div class="title-group">
+    <h1>Contact Messages</h1>
+    <p>Manage and respond to client inquiries sent from your portfolio</p>
+  </div>
+</div>
+
+<div class="messages-layout">
+  <!-- List -->
+  <div class="table-wrapper list-pane">
+    <div *ngIf="dataService.messagesSignal().length === 0" style="padding: 30px; text-align: center; color: var(--muted)">
+      No messages received yet.
+    </div>
+
+    <div
+      *ngFor="let msg of dataService.messagesSignal()"
+      class="msg-item"
+      [class.active-msg]="selectedMsg?.id === msg.id"
+      [class.unread-msg]="!msg.read"
+      (click)="viewMsg(msg)">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 4px">
+        <strong style="color: var(--white); font-size: 0.95rem">{{ msg.name }}</strong>
+        <span style="font-size: 0.75rem; color: var(--muted)">{{ msg.createdAt | date:'shortDate' }}</span>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px">{{ msg.subject }}</div>
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <span class="status-badge" [class.status-published]="msg.read" [class.status-draft]="!msg.read">
+          {{ msg.read ? 'Read' : 'Unread' }}
+        </span>
+        <button class="btn btn-danger btn-sm" (click)="deleteMsg(msg.id, $event)">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail View -->
+  <div class="detail-pane">
+    <div *ngIf="selectedMsg" class="card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px">
+        <div>
+          <h2 style="margin: 0 0 4px 0; color: var(--white); font-size: 1.3rem">{{ selectedMsg.subject }}</h2>
+          <div style="color: var(--accent); font-size: 0.9rem">From: {{ selectedMsg.name }} ({{ selectedMsg.email }})</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" (click)="toggleRead(selectedMsg.id, $event)">
+          Mark as {{ selectedMsg.read ? 'Unread' : 'Read' }}
+        </button>
+      </div>
+
+      <div style="line-height: 1.8; color: var(--text-secondary); white-space: pre-wrap; font-size: 1rem; margin-bottom: 24px">
+        {{ selectedMsg.body }}
+      </div>
+
+      <div style="border-top: 1px solid var(--border); padding-top: 16px; display: flex; gap: 12px">
+        <a [href]="'mailto:' + selectedMsg.email + '?subject=Re: ' + selectedMsg.subject" class="btn btn-primary">
+          📧 Reply via Email
+        </a>
+      </div>
+    </div>
+
+    <div *ngIf="!selectedMsg" class="card" style="text-align: center; padding: 60px 20px; color: var(--muted)">
+      Select a message from the list to view its contents.
+    </div>
+  </div>
+</div>

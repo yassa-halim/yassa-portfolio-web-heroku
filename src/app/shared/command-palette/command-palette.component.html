@@ -1,0 +1,52 @@
+<div class="overlay" *ngIf="isOpen" (click)="close()" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette" (click)="$event.stopPropagation()">
+    <!-- Search Bar -->
+    <div class="searchBar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="searchIcon">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input
+        #searchInput
+        type="text"
+        placeholder="Search projects, skills, pages..."
+        [(ngModel)]="query"
+        (ngModelChange)="onQueryChange()"
+        (keydown)="onInputKeyDown($event)"
+        class="searchInput"
+        autocomplete="off"/>
+      <kbd class="escKey">ESC</kbd>
+    </div>
+
+    <!-- Results -->
+    <div class="results">
+      <div *ngFor="let entry of groupEntries; trackBy: trackByCategory" class="group">
+        <div class="groupLabel">{{ entry[0] }}</div>
+        <button
+          *ngFor="let item of entry[1]; let i = index; trackBy: trackById"
+          class="result"
+          [class.resultSelected]="selectedIndex === getFlatIndex(entry[0], i)"
+          (click)="runAction(item)"
+          (mouseenter)="selectedIndex = getFlatIndex(entry[0], i)">
+          <div class="resultContent">
+            <span class="resultTitle">{{ item.title }}</span>
+            <span class="resultSubtitle">{{ item.subtitle }}</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="resultArrow">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="empty" *ngIf="results.length === 0">
+        <p>No results for "{{ query }}"</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="paletteFooter">
+      <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+      <span><kbd>↵</kbd> Open</span>
+      <span><kbd>esc</kbd> Close</span>
+    </div>
+  </div>
+</div>

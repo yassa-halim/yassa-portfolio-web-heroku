@@ -1,0 +1,55 @@
+<nav class="nav" [class.scrolled]="isScrolled" role="navigation" aria-label="Main navigation">
+  <div class="navInner">
+    <!-- Logo -->
+    <a href="#home" class="logo" (click)="$event.preventDefault(); handleNavClick('#home')">
+      <span class="logoIcon">Y</span>
+      <span class="logoText">yassa.dev</span>
+    </a>
+
+    <!-- Desktop Links -->
+    <div class="links">
+      <a *ngFor="let link of navLinks; trackBy: trackByHref"
+         [href]="link.href"
+         class="link"
+         [class.active]="isActive(link.href)"
+         (click)="$event.preventDefault(); handleNavClick(link.href)">
+        <span class="linkLabel">{{ link.label }}</span>
+        <span class="activePill" *ngIf="isActive(link.href)"></span>
+      </a>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="cmdButton" (click)="openCommandPalette()" aria-label="Open command palette">
+        <kbd>{{ cmdKey }}</kbd>
+        <span>K</span>
+      </button>
+
+      <!-- Mobile Menu Toggle -->
+      <button
+        class="menuToggle"
+        [class.menuOpen]="isMobileMenuOpen"
+        (click)="isMobileMenuOpen = !isMobileMenuOpen"
+        aria-label="Toggle menu"
+        [attr.aria-expanded]="isMobileMenuOpen">
+        <span class="menuBar"></span>
+        <span class="menuBar"></span>
+        <span class="menuBar"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobileOverlay" *ngIf="isMobileMenuOpen" (click)="isMobileMenuOpen = false">
+  <div class="mobileMenu" (click)="$event.stopPropagation()">
+    <a *ngFor="let link of navLinks; let i = index; trackBy: trackByHref"
+       [href]="link.href"
+       class="mobileLink"
+       [style.animation-delay]="(i * 50) + 'ms'"
+       (click)="$event.preventDefault(); handleNavClick(link.href)">
+      <span class="mobileLinkNumber">{{ (i + 1).toString().padStart(2, '0') }}</span>
+      {{ link.label }}
+    </a>
+  </div>
+</div>

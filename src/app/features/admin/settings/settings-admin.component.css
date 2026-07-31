@@ -1,0 +1,15 @@
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+.title-group h1 { font-size: 1.8rem; font-weight: 700; color: var(--white); margin: 0 0 4px 0; }
+.title-group p { color: var(--muted); margin: 0; font-size: 0.9rem; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.9rem; cursor: pointer; border: none; }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--highlight)); color: var(--white); }
+
+.settings-form { display: flex; flex-direction: column; gap: 24px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.card-section-title { font-size: 1.1rem; color: var(--white); margin: 0 0 20px 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--white); margin-bottom: 6px; }
+.form-control { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--white); font-size: 0.9rem; outline: none; box-sizing: border-box; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
