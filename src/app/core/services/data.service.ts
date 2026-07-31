@@ -1,4 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 import {
   SiteConfig, Project, Skill, Course, Award, Education, Experience
 } from '../models/site-config.model';
@@ -33,6 +37,9 @@ export interface SeoSetting {
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
+
   // Signals for reactive updates in Dashboard and Portfolio
   siteConfigSignal = signal<SiteConfig>(this.loadFromStorage('siteConfig', this.defaultSiteConfig()));
   projectsSignal = signal<Project[]>(this.loadFromStorage('projects', this.defaultProjects()));
@@ -53,82 +60,185 @@ export class DataService {
   get education(): Education[] { return this.educationSignal(); }
   get experience(): Experience[] { return this.experienceSignal(); }
 
+  constructor() {
+    this.fetchDataFromBackend();
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    });
+  }
+
+  /**
+   * Fetch initial live data from Node.js Express Backend
+   */
+  async fetchDataFromBackend(): Promise<void> {
+    try {
+      // Projects
+      const projects = await firstValueFrom(this.http.get<Project[]>(`${environment.apiUrl}/projects`));
+      if (projects && projects.length > 0) {
+        this.projectsSignal.set(projects);
+        this.saveToStorage('projects', projects);
+      }
+
+      // Skills
+      const skills = await firstValueFrom(this.http.get<Skill[]>(`${environment.apiUrl}/skills`));
+      if (skills && skills.length > 0) {
+        this.skillsSignal.set(skills);
+        this.saveToStorage('skills', skills);
+      }
+
+      // Courses
+      const courses = await firstValueFrom(this.http.get<Course[]>(`${environment.apiUrl}/credentials/courses`));
+      if (courses && courses.length > 0) {
+        this.coursesSignal.set(courses);
+        this.saveToStorage('courses', courses);
+      }
+
+      // Awards
+      const awards = await firstValueFrom(this.http.get<Award[]>(`${environment.apiUrl}/credentials/awards`));
+      if (awards && awards.length > 0) {
+        this.awardsSignal.set(awards);
+        this.saveToStorage('awards', awards);
+      }
+
+      // Settings
+      const config = await firstValueFrom(this.http.get<SiteConfig>(`${environment.apiUrl}/settings`));
+      if (config) {
+        this.siteConfigSignal.set(config);
+        this.saveToStorage('siteConfig', config);
+      }
+    } catch {
+      console.warn('[DataService] Express API Backend offline, running with cached data.');
+    }
+  }
+
   // --- CRUD Methods ---
-  saveSiteConfig(config: SiteConfig): void {
+  async saveSiteConfig(config: SiteConfig): Promise<void> {
     this.siteConfigSignal.set(config);
     this.saveToStorage('siteConfig', config);
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/settings`, config, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Projects
-  addProject(project: Omit<Project, 'id'>): void {
+  async addProject(project: Omit<Project, 'id'>): Promise<void> {
     const newProject: Project = { ...project, id: Date.now().toString() };
     const updated = [newProject, ...this.projectsSignal()];
     this.projectsSignal.set(updated);
     this.saveToStorage('projects', updated);
+
+    try {
+      const res = await firstValueFrom(this.http.post<Project>(`${environment.apiUrl}/projects`, project, { headers: this.getAuthHeaders() }));
+      if (res && res.id) {
+        const synced = [res, ...this.projectsSignal().filter(p => p.id !== newProject.id)];
+        this.projectsSignal.set(synced);
+      }
+    } catch {}
   }
 
-  updateProject(id: string, project: Partial<Project>): void {
+  async updateProject(id: string, project: Partial<Project>): Promise<void> {
     const updated = this.projectsSignal().map(p => p.id === id ? { ...p, ...project } : p);
     this.projectsSignal.set(updated);
     this.saveToStorage('projects', updated);
+
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/projects/${id}`, project, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  deleteProject(id: string): void {
+  async deleteProject(id: string): Promise<void> {
     const updated = this.projectsSignal().filter(p => p.id !== id);
     this.projectsSignal.set(updated);
     this.saveToStorage('projects', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/projects/${id}`, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Skills
-  addSkill(skill: Omit<Skill, 'id'>): void {
+  async addSkill(skill: Omit<Skill, 'id'>): Promise<void> {
     const newSkill: Skill = { ...skill, id: Date.now().toString() };
     const updated = [...this.skillsSignal(), newSkill];
     this.skillsSignal.set(updated);
     this.saveToStorage('skills', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/skills`, skill, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  updateSkill(id: string, skill: Partial<Skill>): void {
+  async updateSkill(id: string, skill: Partial<Skill>): Promise<void> {
     const updated = this.skillsSignal().map(s => s.id === id ? { ...s, ...skill } : s);
     this.skillsSignal.set(updated);
     this.saveToStorage('skills', updated);
+
+    try {
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/skills/${id}`, skill, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  deleteSkill(id: string): void {
+  async deleteSkill(id: string): Promise<void> {
     const updated = this.skillsSignal().filter(s => s.id !== id);
     this.skillsSignal.set(updated);
     this.saveToStorage('skills', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/skills/${id}`, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Courses
-  addCourse(course: Omit<Course, 'id'>): void {
+  async addCourse(course: Omit<Course, 'id'>): Promise<void> {
     const newCourse: Course = { ...course, id: Date.now().toString() };
     const updated = [newCourse, ...this.coursesSignal()];
     this.coursesSignal.set(updated);
     this.saveToStorage('courses', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/courses`, course, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  deleteCourse(id: string): void {
+  async deleteCourse(id: string): Promise<void> {
     const updated = this.coursesSignal().filter(c => c.id !== id);
     this.coursesSignal.set(updated);
     this.saveToStorage('courses', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/courses/${id}`, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Awards
-  addAward(award: Omit<Award, 'id'>): void {
+  async addAward(award: Omit<Award, 'id'>): Promise<void> {
     const newAward: Award = { ...award, id: Date.now().toString() };
     const updated = [newAward, ...this.awardsSignal()];
     this.awardsSignal.set(updated);
     this.saveToStorage('awards', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/awards`, award, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  deleteAward(id: string): void {
+  async deleteAward(id: string): Promise<void> {
     const updated = this.awardsSignal().filter(a => a.id !== id);
     this.awardsSignal.set(updated);
     this.saveToStorage('awards', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/awards/${id}`, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Messages
-  addMessage(msg: { name: string; email: string; subject: string; body: string }): void {
+  async addMessage(msg: { name: string; email: string; subject: string; body: string }): Promise<void> {
     const newMsg: ContactMessage = {
       ...msg,
       id: Date.now().toString(),
@@ -138,18 +248,30 @@ export class DataService {
     const updated = [newMsg, ...this.messagesSignal()];
     this.messagesSignal.set(updated);
     this.saveToStorage('messages', updated);
+
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/messages`, msg));
+    } catch {}
   }
 
-  toggleMessageRead(id: string): void {
+  async toggleMessageRead(id: string): Promise<void> {
     const updated = this.messagesSignal().map(m => m.id === id ? { ...m, read: !m.read } : m);
     this.messagesSignal.set(updated);
     this.saveToStorage('messages', updated);
+
+    try {
+      await firstValueFrom(this.http.patch(`${environment.apiUrl}/messages/${id}/read`, {}, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
-  deleteMessage(id: string): void {
+  async deleteMessage(id: string): Promise<void> {
     const updated = this.messagesSignal().filter(m => m.id !== id);
     this.messagesSignal.set(updated);
     this.saveToStorage('messages', updated);
+
+    try {
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/messages/${id}`, { headers: this.getAuthHeaders() }));
+    } catch {}
   }
 
   // Media

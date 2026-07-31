@@ -18,12 +18,12 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  onLogin(): void {
+  async onLogin(): Promise<void> {
     this.error = '';
     this.loading = true;
 
-    setTimeout(() => {
-      const success = this.authService.login(this.password);
+    try {
+      const success = await this.authService.login(this.password);
       this.loading = false;
 
       if (success) {
@@ -31,6 +31,9 @@ export class LoginComponent {
       } else {
         this.error = 'Invalid admin password. (Try: admin123)';
       }
-    }, 400);
+    } catch {
+      this.loading = false;
+      this.error = 'Login error. Please try again.';
+    }
   }
 }
