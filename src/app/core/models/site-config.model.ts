@@ -37,6 +37,7 @@ export interface Education {
   startDate: string;
   endDate: string;
   description: string;
+  order?: number;
 }
 
 export interface Experience {
@@ -47,6 +48,7 @@ export interface Experience {
   endDate: string;
   description: string;
   techStack: string[];
+  order?: number;
 }
 
 export interface NavLink {
