@@ -108,8 +108,18 @@ export class DataService {
       // Settings
       const config = await firstValueFrom(this.http.get<SiteConfig>(`${environment.apiUrl}/settings`));
       if (config) {
-        this.siteConfigSignal.set(config);
-        this.saveToStorage('siteConfig', config);
+        const defaults = this.defaultSiteConfig();
+        const mergedConfig: SiteConfig = {
+          ...defaults,
+          ...config,
+          hero: { ...defaults.hero, ...(config.hero || {}) },
+          about: { ...defaults.about, ...(config.about || {}) },
+          socials: { ...defaults.socials, ...(config.socials || {}) },
+          navLinks: config.navLinks && config.navLinks.length > 0 ? config.navLinks : defaults.navLinks,
+          roles: config.roles && config.roles.length > 0 ? config.roles : defaults.roles,
+        };
+        this.siteConfigSignal.set(mergedConfig);
+        this.saveToStorage('siteConfig', mergedConfig);
       }
 
       // Education

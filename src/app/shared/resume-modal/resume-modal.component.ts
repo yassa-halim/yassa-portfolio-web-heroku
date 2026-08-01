@@ -39,7 +39,7 @@ import { CommonModule } from '@angular/common';
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--modal-backdrop, rgba(0, 0, 0, 0.85));
       backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
@@ -52,8 +52,8 @@ import { CommonModule } from '@angular/common';
       width: 100%;
       max-width: 900px;
       height: 85vh;
-      background: rgba(18, 18, 26, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--surface, rgba(18, 18, 26, 0.95));
+      border: 1px solid var(--border);
       border-radius: 16px;
       display: flex;
       flex-direction: column;
@@ -66,7 +66,7 @@ import { CommonModule } from '@angular/common';
       align-items: center;
       justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.03);
     }
 
@@ -77,14 +77,14 @@ import { CommonModule } from '@angular/common';
 
       .badge {
         font-size: 0.75rem;
-        color: var(--primary-color, #00E5FF);
+        color: var(--accent);
         font-weight: 600;
       }
 
       h3 {
         margin: 0;
         font-size: 1.2rem;
-        color: #fff;
+        color: var(--white);
       }
     }
 

@@ -8,25 +8,6 @@
 
 /* ---- Design Tokens ---- */
 :root {
-  /* Colors */
-  --primary: #210F37;
-  --secondary: #4F1C51;
-  --accent: #A55B4B;
-  --highlight: #DCA06D;
-  --bg: #09090B;
-  --surface: #111114;
-  --card: #17171F;
-  --white: #FFFFFF;
-  --text-secondary: #D2D2D7;
-  --muted: #8D8D98;
-  --border: rgba(255, 255, 255, 0.06);
-
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
-  --gradient-accent: linear-gradient(135deg, var(--accent), var(--highlight));
-  --gradient-glow: radial-gradient(ellipse at center, rgba(165, 91, 75, 0.15), transparent 70%);
-  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
-
   /* Typography Scale */
   --font-display: 'Clash Display', 'General Sans', sans-serif;
   --font-heading: 'General Sans', 'Inter', sans-serif;
@@ -68,13 +49,6 @@
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 40px rgba(165, 91, 75, 0.15);
-
   /* Transitions */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -94,6 +68,57 @@
   --z-modal: 300;
   --z-cursor: 400;
   --z-loading: 500;
+
+  /* Colors - Dark Mode Default */
+  --primary: #210F37;
+  --secondary: #4F1C51;
+  --accent: #A55B4B;
+  --highlight: #DCA06D;
+  --bg: #09090B;
+  --surface: #111114;
+  --card: #17171F;
+  --white: #FFFFFF;
+  --text-secondary: #D2D2D7;
+  --muted: #8D8D98;
+  --border: rgba(255, 255, 255, 0.06);
+  --nav-bg: rgba(9, 9, 11, 0.85);
+  --modal-backdrop: rgba(0, 0, 0, 0.85);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 40px rgba(165, 91, 75, 0.15);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--secondary));
+  --gradient-accent: linear-gradient(135deg, var(--accent), var(--highlight));
+  --gradient-glow: radial-gradient(ellipse at center, rgba(165, 91, 75, 0.15), transparent 70%);
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
+}
+
+/* Light Theme Tokens */
+[data-theme="light"] {
+  --primary: #4F1C51;
+  --secondary: #210F37;
+  --accent: #A55B4B;
+  --highlight: #C87D43;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --card: #FFFFFF;
+  --white: #0F172A; /* Heading / dark text color in light mode */
+  --text-secondary: #334155;
+  --muted: #64748B;
+  --border: rgba(15, 23, 42, 0.1);
+  --nav-bg: rgba(248, 250, 252, 0.85);
+  --modal-backdrop: rgba(15, 23, 42, 0.5);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 40px rgba(165, 91, 75, 0.2);
 }
 
 /* ---- Reset & Base ---- */

@@ -221,6 +221,23 @@
   position: absolute;
   inset: 0;
   background: #050505;
+  transition: background 0.5s ease;
+}
+
+[data-theme="light"] .skyCanvas {
+  background: #F1F5F9;
+}
+
+[data-theme="light"] .stars1,
+[data-theme="light"] .stars2,
+[data-theme="light"] .stars3 {
+  filter: invert(1);
+  opacity: 0.3;
+}
+
+[data-theme="light"] .moon {
+  box-shadow: 15px 15px 0 0 #F59E0B;
+  filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.4));
 }
 
 .stars {
