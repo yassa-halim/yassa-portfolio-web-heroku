@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { AnalyticsService } from './core/services/analytics.service';
 
 import { SplashScreenComponent } from './shared/splash-screen/splash-screen.component';
 import { StarryBackgroundComponent } from './shared/starry-background/starry-background.component';
@@ -80,13 +79,10 @@ import { ContactComponent } from './features/contact/contact.component';
   `]
 })
 export class PortfolioPageComponent implements OnInit {
-  private http = inject(HttpClient);
+  private analytics = inject(AnalyticsService);
   showResumeModal = false;
 
   ngOnInit(): void {
-    // Track page view event
-    this.http.post(`${environment.apiUrl}/analytics/track`, { type: 'page_view' }).subscribe({
-      error: () => {}
-    });
+    this.analytics.track('page_view');
   }
 }

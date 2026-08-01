@@ -1,8 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthService } from './auth.service';
+
 import {
   SiteConfig, Project, Skill, Course, Award, Education, Experience
 } from '../models/site-config.model';
@@ -38,7 +38,6 @@ export interface SeoSetting {
 @Injectable({ providedIn: 'root' })
 export class DataService {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
   // Signals for reactive updates in Dashboard and Portfolio
   siteConfigSignal = signal<SiteConfig>(this.loadFromStorage('siteConfig', this.defaultSiteConfig()));
@@ -64,13 +63,7 @@ export class DataService {
     this.fetchDataFromBackend();
   }
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    });
-  }
+
 
   /**
    * Fetch initial live data from Node.js Express Backend
@@ -135,8 +128,8 @@ export class DataService {
         this.experienceSignal.set(experience);
         this.saveToStorage('experience', experience);
       }
-    } catch {
-      console.warn('[DataService] Express API Backend offline, running with cached data.');
+    } catch (err) {
+      console.warn('[DataService] Express API Backend offline, running with cached data.', err);
     }
   }
 
@@ -145,8 +138,10 @@ export class DataService {
     this.siteConfigSignal.set(config);
     this.saveToStorage('siteConfig', config);
     try {
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/settings`, config, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/settings`, config));
+    } catch (err) {
+      console.error('[DataService] Failed to save site config:', err);
+    }
   }
 
   // Projects
@@ -157,12 +152,14 @@ export class DataService {
     this.saveToStorage('projects', updated);
 
     try {
-      const res = await firstValueFrom(this.http.post<Project>(`${environment.apiUrl}/projects`, project, { headers: this.getAuthHeaders() }));
+      const res = await firstValueFrom(this.http.post<Project>(`${environment.apiUrl}/projects`, project));
       if (res && res.id) {
         const synced = [res, ...this.projectsSignal().filter(p => p.id !== newProject.id)];
         this.projectsSignal.set(synced);
       }
-    } catch { }
+    } catch (err) {
+      console.error('[DataService] Failed to add project:', err);
+    }
   }
 
   async updateProject(id: string, project: Partial<Project>): Promise<void> {
@@ -171,8 +168,10 @@ export class DataService {
     this.saveToStorage('projects', updated);
 
     try {
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/projects/${id}`, project, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/projects/${id}`, project));
+    } catch (err) {
+      console.error('[DataService] Failed to update project:', err);
+    }
   }
 
   async deleteProject(id: string): Promise<void> {
@@ -181,8 +180,10 @@ export class DataService {
     this.saveToStorage('projects', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/projects/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/projects/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete project:', err);
+    }
   }
 
   // Skills
@@ -193,8 +194,10 @@ export class DataService {
     this.saveToStorage('skills', updated);
 
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/skills`, skill, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/skills`, skill));
+    } catch (err) {
+      console.error('[DataService] Failed to add skill:', err);
+    }
   }
 
   async updateSkill(id: string, skill: Partial<Skill>): Promise<void> {
@@ -203,8 +206,10 @@ export class DataService {
     this.saveToStorage('skills', updated);
 
     try {
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/skills/${id}`, skill, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/skills/${id}`, skill));
+    } catch (err) {
+      console.error('[DataService] Failed to update skill:', err);
+    }
   }
 
   async deleteSkill(id: string): Promise<void> {
@@ -213,8 +218,10 @@ export class DataService {
     this.saveToStorage('skills', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/skills/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/skills/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete skill:', err);
+    }
   }
 
   // Courses
@@ -225,8 +232,10 @@ export class DataService {
     this.saveToStorage('courses', updated);
 
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/courses`, course, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/courses`, course));
+    } catch (err) {
+      console.error('[DataService] Failed to add course:', err);
+    }
   }
 
   async deleteCourse(id: string): Promise<void> {
@@ -235,8 +244,10 @@ export class DataService {
     this.saveToStorage('courses', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/courses/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/courses/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete course:', err);
+    }
   }
 
   // Awards
@@ -247,8 +258,10 @@ export class DataService {
     this.saveToStorage('awards', updated);
 
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/awards`, award, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/credentials/awards`, award));
+    } catch (err) {
+      console.error('[DataService] Failed to add award:', err);
+    }
   }
 
   async deleteAward(id: string): Promise<void> {
@@ -257,8 +270,10 @@ export class DataService {
     this.saveToStorage('awards', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/awards/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/credentials/awards/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete award:', err);
+    }
   }
 
   // Education
@@ -269,8 +284,10 @@ export class DataService {
     this.saveToStorage('education', updated);
 
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/education`, edu, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/education`, edu));
+    } catch (err) {
+      console.error('[DataService] Failed to add education:', err);
+    }
   }
 
   async updateEducation(id: string, edu: Partial<Education>): Promise<void> {
@@ -279,8 +296,10 @@ export class DataService {
     this.saveToStorage('education', updated);
 
     try {
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/education/${id}`, edu, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/education/${id}`, edu));
+    } catch (err) {
+      console.error('[DataService] Failed to update education:', err);
+    }
   }
 
   async deleteEducation(id: string): Promise<void> {
@@ -289,8 +308,10 @@ export class DataService {
     this.saveToStorage('education', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/education/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/education/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete education:', err);
+    }
   }
 
   // Experience
@@ -301,8 +322,10 @@ export class DataService {
     this.saveToStorage('experience', updated);
 
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/experience`, exp, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/experience`, exp));
+    } catch (err) {
+      console.error('[DataService] Failed to add experience:', err);
+    }
   }
 
   async updateExperience(id: string, exp: Partial<Experience>): Promise<void> {
@@ -311,8 +334,10 @@ export class DataService {
     this.saveToStorage('experience', updated);
 
     try {
-      await firstValueFrom(this.http.put(`${environment.apiUrl}/experience/${id}`, exp, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.put(`${environment.apiUrl}/experience/${id}`, exp));
+    } catch (err) {
+      console.error('[DataService] Failed to update experience:', err);
+    }
   }
 
   async deleteExperience(id: string): Promise<void> {
@@ -321,8 +346,10 @@ export class DataService {
     this.saveToStorage('experience', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/experience/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/experience/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete experience:', err);
+    }
   }
 
   // Messages
@@ -339,7 +366,9 @@ export class DataService {
 
     try {
       await firstValueFrom(this.http.post(`${environment.apiUrl}/messages`, msg));
-    } catch { }
+    } catch (err) {
+      console.error('[DataService] Failed to send message:', err);
+    }
   }
 
   async toggleMessageRead(id: string): Promise<void> {
@@ -348,8 +377,10 @@ export class DataService {
     this.saveToStorage('messages', updated);
 
     try {
-      await firstValueFrom(this.http.patch(`${environment.apiUrl}/messages/${id}/read`, {}, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.patch(`${environment.apiUrl}/messages/${id}/read`, {}));
+    } catch (err) {
+      console.error('[DataService] Failed to toggle message read status:', err);
+    }
   }
 
   async deleteMessage(id: string): Promise<void> {
@@ -358,8 +389,10 @@ export class DataService {
     this.saveToStorage('messages', updated);
 
     try {
-      await firstValueFrom(this.http.delete(`${environment.apiUrl}/messages/${id}`, { headers: this.getAuthHeaders() }));
-    } catch { }
+      await firstValueFrom(this.http.delete(`${environment.apiUrl}/messages/${id}`));
+    } catch (err) {
+      console.error('[DataService] Failed to delete message:', err);
+    }
   }
 
   // Media

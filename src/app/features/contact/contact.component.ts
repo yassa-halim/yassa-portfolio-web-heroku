@@ -21,7 +21,7 @@ export class ContactComponent implements OnInit {
     name: '',
     email: '',
     subject: '',
-    message: '',
+    body: '',
   };
 
   submitState: SubmitState = 'idle';
@@ -45,29 +45,26 @@ export class ContactComponent implements OnInit {
   onSubmit(): void {
     if (this.submitState !== 'idle') return;
 
-    if (!this.formData.name || !this.formData.email || !this.formData.message) {
+    if (!this.formData.name || !this.formData.email || !this.formData.body) {
       return;
     }
 
     this.submitState = 'sending';
-
-    // Save message to Express backend & local storage
-    this.dataService.addMessage({
-      name: this.formData.name,
-      email: this.formData.email,
-      subject: this.formData.subject || 'Portfolio Inquiry',
-      body: this.formData.message,
-    });
 
     setTimeout(() => {
       this.submitState = 'compiling';
 
       this.contactService.send(this.formData).subscribe({
         next: () => {
+          // Update local state on success
+          this.dataService.messagesSignal.update(msgs => [
+            { id: Date.now().toString(), ...this.formData, read: false, createdAt: new Date().toISOString() },
+            ...msgs
+          ]);
           this.submitState = 'success';
           setTimeout(() => {
             this.submitState = 'idle';
-            this.formData = { name: '', email: '', subject: '', message: '' };
+            this.formData = { name: '', email: '', subject: '', body: '' };
           }, 3000);
         },
         error: () => {

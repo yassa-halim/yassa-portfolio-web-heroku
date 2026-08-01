@@ -52,13 +52,13 @@
         </div>
 
         <!-- Message -->
-        <div class="field fieldTextarea" [class.fieldFocused]="isFocusedOrFilled('message')">
+        <div class="field fieldTextarea" [class.fieldFocused]="isFocusedOrFilled('body')">
           <label class="label" for="contact-message">Message</label>
           <textarea
             id="contact-message"
-            name="message"
-            [(ngModel)]="formData.message"
-            (focus)="setFocus('message')"
+            name="body"
+            [(ngModel)]="formData.body"
+            (focus)="setFocus('body')"
             (blur)="setFocus(null)"
             required
             rows="5"
