@@ -28,9 +28,7 @@
         tabindex="0"
         [attr.aria-label]="'View project: ' + project.title"
         (click)="openModal(project)"
-        (keydown.enter)="openModal(project)"
-        (mousemove)="onCardTilt($event, card)"
-        (mouseleave)="resetCardTilt(card)">
+        (keydown.enter)="openModal(project)">
 
         <!-- Animated Glowing Border -->
         <div class="cardBorder"></div>
@@ -62,7 +60,8 @@
                 <span
                   *ngFor="let img of project.images; let i = index"
                   class="carouselDot"
-                  [class.activeDot]="i === (activeIndices[project.id!] || 0)">
+                  [class.activeDot]="i === (activeIndices[project.id!] || 0)"
+                  (click)="$event.stopPropagation(); setSlideIndex(project.id!, i)">
                 </span>
               </div>
             </ng-container>
