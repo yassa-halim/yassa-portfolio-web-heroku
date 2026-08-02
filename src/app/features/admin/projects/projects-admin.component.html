@@ -94,7 +94,7 @@
       <div class="form-group">
         <label>
           Project Screenshots
-          <span class="label-hint">(First image = cover · Click to set any as cover)</span>
+          <span class="label-hint">⚡ Instant — no upload wait · First image = cover</span>
         </label>
 
         <div class="images-grid">
@@ -105,56 +105,56 @@
             class="img-slot"
             [class.cover-slot]="i === 0">
 
-            <!-- Spinner while replacing -->
-            <div *ngIf="uploadingIndex === i" class="img-spinner">⏳</div>
+            <!-- Spinner while processing (client-side, very brief) -->
+            <div *ngIf="isProcessing(i)" class="img-spinner">⚡</div>
 
-            <img *ngIf="uploadingIndex !== i" [src]="img" [alt]="'Screenshot ' + (i+1)" class="img-thumb" />
+            <img *ngIf="!isProcessing(i)" [src]="img" [alt]="'Screenshot ' + (i+1)" class="img-thumb" />
 
-            <!-- Overlay actions -->
-            <div class="img-overlay" *ngIf="uploadingIndex !== i">
-              <button type="button" class="img-action-btn" (click)="setCover(i)" title="Set as cover" *ngIf="i !== 0">
-                ⭐
-              </button>
-              <button type="button" class="img-action-btn danger" (click)="removeImage(i)" title="Remove image">
-                🗑️
-              </button>
-              <button type="button" class="img-action-btn" (click)="triggerUpload(i)" title="Replace image">
-                🔄
-              </button>
+            <!-- Hover overlay actions -->
+            <div class="img-overlay" *ngIf="!isProcessing(i)">
+              <button type="button" class="img-action-btn" (click)="setCover(i)" title="Set as cover" *ngIf="i !== 0">⭐ Cover</button>
+              <button type="button" class="img-action-btn" (click)="triggerUpload(i)" title="Replace">🔄 Replace</button>
+              <button type="button" class="img-action-btn danger" (click)="removeImage(i)" title="Remove">🗑️ Remove</button>
             </div>
 
             <span *ngIf="i === 0" class="cover-badge">Cover</span>
 
-            <!-- Hidden replace input -->
+            <!-- Hidden replace input (single file) -->
             <input
               type="file"
               [id]="'img' + i"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*"
               class="hidden-input"
-              (change)="onImageSelected($event, i)" />
+              (change)="onFilesSelected($event, i)" />
           </div>
 
-          <!-- Add new image slot -->
+          <!-- Add new images slot — supports multiple selection -->
           <div
             class="img-slot add-slot"
-            [class.uploading]="uploadingIndex === -1"
-            (click)="uploadingIndex !== -1 && triggerUpload(-1)">
-            <span *ngIf="uploadingIndex !== -1">
+            [class.uploading]="isProcessing('new')"
+            (click)="!isProcessing('new') && triggerUpload('new')">
+            <span *ngIf="!isProcessing('new')">
               <span class="add-icon">📸</span>
-              <span class="add-text">Add photo</span>
+              <span class="add-text">Add photos</span>
+              <span class="add-hint">Select multiple at once</span>
             </span>
-            <span *ngIf="uploadingIndex === -1" class="img-spinner">⏳</span>
+            <span *ngIf="isProcessing('new')" class="processing-msg">
+              <span class="add-icon">⚡</span>
+              <span class="add-text">Processing...</span>
+            </span>
+            <!-- Multiple file input -->
             <input
               type="file"
               id="imgNew"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*"
+              multiple
               class="hidden-input"
-              (change)="onImageSelected($event, -1)" />
+              (change)="onFilesSelected($event)" />
           </div>
 
         </div>
 
-        <p class="upload-hint-text">JPEG, PNG, WebP — max 5MB each</p>
+        <p class="upload-hint-text">Compressed instantly in your browser — no wait, no server upload needed</p>
         <p class="upload-error" *ngIf="uploadError">⚠️ {{ uploadError }}</p>
       </div>
       <!-- ============================= -->

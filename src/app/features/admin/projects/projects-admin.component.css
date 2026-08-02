@@ -294,17 +294,31 @@ tr:last-child td { border-bottom: none; }
 .add-slot:hover { border-color: var(--accent); background: rgba(165, 91, 75, 0.04); }
 .add-slot.uploading { opacity: 0.7; pointer-events: none; }
 
+.add-slot > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
 .add-icon { font-size: 1.6rem; }
-.add-text { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.add-text { font-size: 0.8rem; color: var(--white); font-weight: 600; }
+.add-hint { font-size: 0.68rem; color: var(--muted); }
+
+.processing-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
 
 .hidden-input { display: none; }
 
-.upload-hint-text { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+.upload-hint-text { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
 
 .upload-error {
   color: #ef4444;
   font-size: 0.82rem;
   margin-top: 6px;
 }
-
-

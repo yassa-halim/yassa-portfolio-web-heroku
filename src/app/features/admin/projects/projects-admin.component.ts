@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { DataService } from '../../../core/services/data.service';
 import { Project } from '../../../core/models/site-config.model';
 
+/** Max dimension for any side of a compressed image */
+const MAX_PX = 1200;
+/** JPEG quality (0–1) */
+const JPEG_QUALITY = 0.82;
+
 @Component({
   selector: 'app-projects-admin',
   standalone: true,
@@ -14,7 +19,9 @@ import { Project } from '../../../core/models/site-config.model';
 export class ProjectsAdminComponent {
   showModal = false;
   editingId: string | null = null;
-  uploadingIndex: number | null = null; // which slot is uploading (-1 = new slot)
+
+  /** Set of indices currently being processed (client-side, so near-instant) */
+  processingSet = new Set<number | 'new'>();
   uploadError = '';
   saveLoading = false;
 
@@ -49,6 +56,7 @@ export class ProjectsAdminComponent {
     this.techInput = 'Flutter, Dart, Firebase';
     this.featureInput = 'Real-time sync, Custom animations';
     this.uploadError = '';
+    this.processingSet.clear();
     this.showModal = true;
   }
 
@@ -58,61 +66,103 @@ export class ProjectsAdminComponent {
     this.techInput = project.techStack.join(', ');
     this.featureInput = project.features.join(', ');
     this.uploadError = '';
+    this.processingSet.clear();
     this.showModal = true;
   }
 
   closeModal(): void {
     this.showModal = false;
     this.uploadError = '';
-    this.uploadingIndex = null;
+    this.processingSet.clear();
   }
 
-  /** Trigger hidden file input for a specific slot index, or -1 for adding new */
-  triggerUpload(index: number): void {
-    const inputId = index === -1 ? 'imgNew' : `img${index}`;
-    const el = document.getElementById(inputId) as HTMLInputElement | null;
-    el?.click();
+  triggerUpload(index: number | 'new'): void {
+    const inputId = index === 'new' ? 'imgNew' : `img${index}`;
+    (document.getElementById(inputId) as HTMLInputElement | null)?.click();
   }
 
-  /** Handles file selection — uploads and stores into images[] at given index or appends */
-  async onImageSelected(event: Event, index: number): Promise<void> {
+  /** ─── CLIENT-SIDE MULTI-FILE HANDLER ─── */
+  async onFilesSelected(event: Event, replaceIndex?: number): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      this.uploadError = 'Image must be smaller than 5MB';
+    this.uploadError = '';
+
+    // Validate
+    const tooLarge = files.find(f => f.size > 20 * 1024 * 1024);
+    if (tooLarge) {
+      this.uploadError = `"${tooLarge.name}" exceeds 20 MB — please resize first`;
       input.value = '';
       return;
     }
 
-    this.uploadingIndex = index;
-    this.uploadError = '';
+    // Show spinner per slot
+    if (replaceIndex !== undefined) {
+      this.processingSet.add(replaceIndex);
+    } else {
+      this.processingSet.add('new');
+    }
 
     try {
-      const url = await this.dataService.uploadImage(file);
+      // Process all files in parallel (client-side canvas compression)
+      const dataUrls = await Promise.all(files.map(f => this.compressToDataUrl(f)));
+
       const imgs = [...(this.formProject.images || [])];
 
-      if (index === -1) {
-        // New image: append
-        imgs.push(url);
+      if (replaceIndex !== undefined) {
+        // Replace single slot
+        imgs[replaceIndex] = dataUrls[0];
       } else {
-        // Replace existing
-        imgs[index] = url;
+        // Append all
+        imgs.push(...dataUrls);
       }
 
-      // First image always becomes coverImage
       this.formProject = {
         ...this.formProject,
         images: imgs,
         coverImage: imgs[0] || '',
       };
-    } catch (err: any) {
-      this.uploadError = err?.error?.message || 'Upload failed — please try again';
+    } catch {
+      this.uploadError = 'Could not process image — try a different file';
     } finally {
-      this.uploadingIndex = null;
+      if (replaceIndex !== undefined) {
+        this.processingSet.delete(replaceIndex);
+      } else {
+        this.processingSet.delete('new');
+      }
       input.value = '';
     }
+  }
+
+  /**
+   * Compress a File to a base64 JPEG data URL using a canvas.
+   * No server call — runs entirely in the browser. Instant.
+   */
+  private compressToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const { width, height } = img;
+          const ratio = Math.min(MAX_PX / width, MAX_PX / height, 1);
+          const w = Math.round(width * ratio);
+          const h = Math.round(height * ratio);
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   removeImage(index: number): void {
@@ -130,6 +180,10 @@ export class ProjectsAdminComponent {
     const [picked] = imgs.splice(index, 1);
     imgs.unshift(picked);
     this.formProject = { ...this.formProject, images: imgs, coverImage: picked };
+  }
+
+  isProcessing(index: number | 'new'): boolean {
+    return this.processingSet.has(index);
   }
 
   async saveProject(): Promise<void> {
