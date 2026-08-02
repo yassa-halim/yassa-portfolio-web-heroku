@@ -35,14 +35,13 @@
         </p>
 
         <!-- Philosophy Quote -->
-        <blockquote class="philosophy" [attr.data-idx]="config?.about?.bio?.length">
-          <ng-container *ngFor="let word of philosophyWords; let i = index; trackBy: trackByIndex">
-            <span class="philosophyWord"
-                  [style.animation-delay]="getPhilosophyDelay(i)"
-                  [style.opacity]="isVisible(config.about.bio.length) ? undefined : 0">
-              {{ word }}&nbsp;
-            </span>
-          </ng-container>
+        <blockquote
+          class="philosophy"
+          [attr.data-idx]="99"
+          [style.opacity]="isVisible(99) ? 1 : 0"
+          [style.transform]="isVisible(99) ? 'translateY(0)' : 'translateY(20px)'"
+          style="transition: all 0.6s var(--ease-out-expo) 0.3s">
+          "{{ config?.about?.philosophy }}"
         </blockquote>
       </div>
 
@@ -51,9 +50,9 @@
         <div
           *ngFor="let stat of config?.about?.stats; let i = index; trackBy: trackByIndex"
           class="statCard"
-          [attr.data-idx]="(config?.about?.bio?.length ?? 0) + 1 + i"
-          [style.opacity]="isVisible((config?.about?.bio?.length ?? 0) + 1 + i) ? 1 : 0"
-          [style.transform]="isVisible((config?.about?.bio?.length ?? 0) + 1 + i) ? 'translateY(0)' : 'translateY(20px)'"
+          [attr.data-idx]="100 + i"
+          [style.opacity]="isVisible(100 + i) ? 1 : 0"
+          [style.transform]="isVisible(100 + i) ? 'translateY(0)' : 'translateY(20px)'"
           [style.transition]="'all 0.5s var(--ease-out-expo) ' + (i * 0.1) + 's'">
           <span class="statValue">{{ stat.value }}</span>
           <span class="statLabel">{{ stat.label }}</span>
@@ -67,9 +66,9 @@
       <div
         *ngFor="let m of milestones; let i = index; trackBy: trackByIndex"
         class="timelineItem"
-        [attr.data-idx]="20 + i"
-        [style.opacity]="isVisible(20 + i) ? 1 : 0"
-        [style.transform]="isVisible(20 + i) ? 'translateY(0)' : 'translateY(30px)'"
+        [attr.data-idx]="200 + i"
+        [style.opacity]="isVisible(200 + i) ? 1 : 0"
+        [style.transform]="isVisible(200 + i) ? 'translateY(0)' : 'translateY(30px)'"
         [style.transition]="'all 0.6s var(--ease-out-expo) ' + (i * 0.15) + 's'">
         <div class="timelineDot">
           <div class="timelineDotInner"></div>
