@@ -41,25 +41,28 @@
           <!-- Scan Line -->
           <div class="scanLine"></div>
 
-          <!-- Image Layer — Horizontal Scroll Snap Gallery -->
+          <!-- Image Layer — Auto-playing Gallery -->
           <div class="cardImageLayer" [style.background-color]="project.accentColor + '20'">
 
-            <!-- Has multiple images: scrollable carousel -->
+            <!-- Has multiple images: auto-sliding track -->
             <ng-container *ngIf="project.images && project.images.length > 0; else singleImg">
               <div class="cardCarousel" (click)="$event.stopPropagation(); openModal(project)">
-                <img
-                  *ngFor="let img of project.images"
-                  [src]="img"
-                  [alt]="project.title"
-                  class="carouselSlide"
-                  loading="lazy" />
+                <div class="carouselTrack"
+                     [style.transform]="'translateX(-' + ((activeIndices[project.id!] || 0) * 100) + '%)'">
+                  <img
+                    *ngFor="let img of project.images"
+                    [src]="img"
+                    [alt]="project.title"
+                    class="carouselSlide"
+                    loading="lazy" />
+                </div>
               </div>
               <!-- Dot indicators -->
               <div class="carouselDots" *ngIf="project.images.length > 1">
                 <span
                   *ngFor="let img of project.images; let i = index"
                   class="carouselDot"
-                  [class.activeDot]="i === 0">
+                  [class.activeDot]="i === (activeIndices[project.id!] || 0)">
                 </span>
               </div>
             </ng-container>
