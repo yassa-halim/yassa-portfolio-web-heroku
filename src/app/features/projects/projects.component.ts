@@ -14,6 +14,7 @@ export class ProjectsComponent implements OnInit {
   get projects(): Project[] { return this.dataService.projects; }
   activeFilter = 'All';
   selectedProject: Project | null = null;
+  depthMode: 'quick' | 'deep' = 'quick';
 
   get categories(): string[] {
     return ['All', ...Array.from(new Set(this.projects.map(p => p.category)))];

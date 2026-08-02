@@ -1,83 +1,103 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-custom-cursor',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './custom-cursor.component.html',
-  styleUrls: ['./custom-cursor.component.css'],
+  template: `
+    <div
+      *ngIf="enabled"
+      class="customCursor"
+      [class.cursorHovered]="isHovered"
+      [class.cursorActive]="isActive"
+      [style.transform]="cursorTransform"
+      aria-hidden="true">
+      <div class="cursorDot"></div>
+      <div class="cursorRing"></div>
+      <span *ngIf="cursorLabel" class="cursorBadge">{{ cursorLabel }}</span>
+    </div>
+  `,
+  styleUrls: ['./custom-cursor.component.css']
 })
 export class CustomCursorComponent implements OnInit, OnDestroy {
-  @ViewChild('cursorRef') cursorRef!: ElementRef<HTMLDivElement>;
-  @ViewChild('cursorDotRef') cursorDotRef!: ElementRef<HTMLDivElement>;
+  private cdr = inject(ChangeDetectorRef);
 
-  label = '';
-  isHovering = false;
-  isTouch = true;
+  enabled = false;
+  isHovered = false;
+  isActive = false;
+  cursorLabel = '';
 
-  private pos = { x: 0, y: 0 };
-  private target = { x: 0, y: 0 };
-  private rafId = 0;
+  private x = -100;
+  private y = -100;
+  private targetX = -100;
+  private targetY = -100;
+  private animFrameId: number | null = null;
 
-  private mouseMoveHandler = (e: MouseEvent) => {
-    this.target = { x: e.clientX, y: e.clientY };
-  };
-
-  private mouseOverHandler = (e: MouseEvent) => {
-    const targetEl = e.target as HTMLElement;
-    const interactive = targetEl.closest("a, button, input, textarea, select, [role='button']");
-    if (interactive) {
-      this.isHovering = true;
-      const ariaLabel = interactive.getAttribute('aria-label');
-      const tagName = interactive.tagName.toLowerCase();
-      if (ariaLabel) {
-        this.label = ariaLabel.length > 10 ? ariaLabel.slice(0, 10) : ariaLabel;
-      } else if (tagName === 'a') {
-        this.label = 'Open';
-      } else if (tagName === 'button') {
-        this.label = 'Click';
-      } else if (tagName === 'input' || tagName === 'textarea') {
-        this.label = 'Type';
-      } else {
-        this.label = 'View';
-      }
-    } else {
-      this.isHovering = false;
-      this.label = '';
-    }
-  };
+  get cursorTransform(): string {
+    return `translate3d(${this.x}px, ${this.y}px, 0)`;
+  }
 
   ngOnInit(): void {
-    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
-    this.isTouch = isTouchDevice;
+    if (typeof window === 'undefined') return;
 
-    if (!isTouchDevice) {
-      document.body.classList.add('hide-native-cursor');
-      window.addEventListener('mousemove', this.mouseMoveHandler, { passive: true });
-      document.addEventListener('mouseover', this.mouseOverHandler, { passive: true });
-      this.animate();
+    // Disable on touch devices or if user prefers reduced motion
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!isTouch && !reducedMotion) {
+      this.enabled = true;
+      this.startLoop();
     }
   }
 
   ngOnDestroy(): void {
-    document.body.classList.remove('hide-native-cursor');
-    window.removeEventListener('mousemove', this.mouseMoveHandler);
-    document.removeEventListener('mouseover', this.mouseOverHandler);
-    cancelAnimationFrame(this.rafId);
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+    }
   }
 
-  private animate = () => {
-    this.pos.x += (this.target.x - this.pos.x) * 0.15;
-    this.pos.y += (this.target.y - this.pos.y) * 0.15;
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(e: MouseEvent): void {
+    if (!this.enabled) return;
+    this.targetX = e.clientX;
+    this.targetY = e.clientY;
 
-    if (this.cursorRef?.nativeElement) {
-      this.cursorRef.nativeElement.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px)`;
-    }
-    if (this.cursorDotRef?.nativeElement) {
-      this.cursorDotRef.nativeElement.style.transform = `translate(${this.target.x}px, ${this.target.y}px)`;
-    }
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
 
-    this.rafId = requestAnimationFrame(this.animate);
-  };
+    const interactiveEl = target.closest<HTMLElement>(
+      'a, button, [role="button"], input, textarea, select, [data-cursor]'
+    );
+
+    if (interactiveEl) {
+      this.isHovered = true;
+      this.cursorLabel = interactiveEl.getAttribute('data-cursor') || '';
+    } else {
+      this.isHovered = false;
+      this.cursorLabel = '';
+    }
+  }
+
+  @HostListener('document:mousedown')
+  onMouseDown(): void {
+    this.isActive = true;
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    this.isActive = false;
+  }
+
+  private startLoop(): void {
+    const loop = () => {
+      // Smooth lerp follow
+      this.x += (this.targetX - this.x) * 0.2;
+      this.y += (this.targetY - this.y) * 0.2;
+
+      this.cdr.markForCheck();
+      this.animFrameId = requestAnimationFrame(loop);
+    };
+    loop();
+  }
 }

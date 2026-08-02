@@ -1,0 +1,32 @@
+<div class="heatmapContainer">
+  <div class="heatmapHeader">
+    <div class="heatmapTitleGroup">
+      <span class="heatmapIcon">🐙</span>
+      <h3 class="heatmapTitle">GitHub Contributions</h3>
+    </div>
+    <span class="heatmapStat font-mono">{{ totalContributions }} commits in the last year</span>
+  </div>
+
+  <div class="heatmapGrid">
+    <div *ngFor="let week of weeks" class="heatmapWeek">
+      <div
+        *ngFor="let day of week"
+        class="heatmapCell"
+        [class.level0]="day.level === 0"
+        [class.level1]="day.level === 1"
+        [class.level2]="day.level === 2"
+        [class.level3]="day.level === 3"
+        [title]="day.count + ' contributions on ' + day.date">
+      </div>
+    </div>
+  </div>
+
+  <div class="heatmapLegend font-mono">
+    <span>Less</span>
+    <span class="heatmapCell level0"></span>
+    <span class="heatmapCell level1"></span>
+    <span class="heatmapCell level2"></span>
+    <span class="heatmapCell level3"></span>
+    <span>More</span>
+  </div>
+</div>

@@ -54,6 +54,7 @@
         <!-- Animated Primary Button -->
         <button
           *ngIf="btn.variant === 'primary'"
+          appMagnetic
           class="animatedButton"
           (click)="handleCta(btn.href)">
           <svg viewBox="0 0 24 24" class="arr2" xmlns="http://www.w3.org/2000/svg">
@@ -69,6 +70,7 @@
         <!-- Outline Button -->
         <button
           *ngIf="btn.variant === 'outline'"
+          appMagnetic
           class="ctaBtn cta_outline"
           (click)="handleCta(btn.href)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -82,6 +84,7 @@
         <!-- Ghost Button -->
         <button
           *ngIf="btn.variant === 'ghost'"
+          appMagnetic
           class="ctaBtn cta_ghost"
           (click)="handleCta(btn.href)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

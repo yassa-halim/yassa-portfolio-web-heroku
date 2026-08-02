@@ -525,3 +525,39 @@
   transform: translateX(-50%);
   z-index: 10;
 }
+
+/* Case-Study Depth Toggle */
+.depthToggle {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.depthBtn {
+  flex: 1;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out-expo);
+}
+
+.depthBtn:hover {
+  color: var(--white);
+}
+
+.depthActive {
+  color: var(--white);
+  background: var(--card);
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}

@@ -100,11 +100,55 @@
 
       <!-- Body -->
       <div class="modalBody">
-        <!-- Overview -->
-        <div class="modalSection">
-          <h3 class="modalSectionTitle">Overview</h3>
-          <p class="modalText">{{ selectedProject.description }}</p>
+        <!-- Depth Toggle Tabs -->
+        <div class="depthToggle">
+          <button
+            class="depthBtn"
+            [class.depthActive]="depthMode === 'quick'"
+            (click)="depthMode = 'quick'">
+            ⚡ Quick View (30s)
+          </button>
+          <button
+            class="depthBtn"
+            [class.depthActive]="depthMode === 'deep'"
+            (click)="depthMode = 'deep'">
+            🔬 Architecture Deep Dive
+          </button>
         </div>
+
+        <!-- Quick View Mode -->
+        <ng-container *ngIf="depthMode === 'quick'">
+          <div class="modalSection">
+            <h3 class="modalSectionTitle">Overview</h3>
+            <p class="modalText">{{ selectedProject.description }}</p>
+          </div>
+
+          <div class="modalSection">
+            <h3 class="modalSectionTitle">Key Features</h3>
+            <ul class="featureList">
+              <li *ngFor="let f of selectedProject.features" class="featureItem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                {{ f }}
+              </li>
+            </ul>
+          </div>
+        </ng-container>
+
+        <!-- Deep Dive Mode -->
+        <ng-container *ngIf="depthMode === 'deep'">
+          <div class="modalGrid">
+            <div class="modalSection">
+              <h3 class="modalSectionTitle">🧩 Architectural Challenge</h3>
+              <p class="modalText">{{ selectedProject.challenges || 'Optimizing performance, state synchronization, and clean widget architecture for high-load mobile environments.' }}</p>
+            </div>
+            <div class="modalSection">
+              <h3 class="modalSectionTitle">💡 Engineering Solution</h3>
+              <p class="modalText">{{ selectedProject.solutions || 'Implemented clean layered architecture, reactive BLoC/Provider state management, and optimized rendering cycles.' }}</p>
+            </div>
+          </div>
+        </ng-container>
 
         <!-- Features -->
         <div class="modalSection">

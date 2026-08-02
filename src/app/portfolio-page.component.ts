@@ -6,8 +6,10 @@ import { SplashScreenComponent } from './shared/splash-screen/splash-screen.comp
 import { StarryBackgroundComponent } from './shared/starry-background/starry-background.component';
 import { CustomCursorComponent } from './shared/custom-cursor/custom-cursor.component';
 import { ScrollProgressComponent } from './shared/scroll-progress/scroll-progress.component';
+import { NoiseOverlayComponent } from './shared/noise-overlay/noise-overlay.component';
 import { NavigationComponent } from './shared/navigation/navigation.component';
 import { CommandPaletteComponent } from './shared/command-palette/command-palette.component';
+import { GithubHeatmapComponent } from './shared/github-heatmap/github-heatmap.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { ResumeModalComponent } from './shared/resume-modal/resume-modal.component';
 
@@ -27,8 +29,10 @@ import { ContactComponent } from './features/contact/contact.component';
     StarryBackgroundComponent,
     CustomCursorComponent,
     ScrollProgressComponent,
+    NoiseOverlayComponent,
     NavigationComponent,
     CommandPaletteComponent,
+    GithubHeatmapComponent,
     FooterComponent,
     ResumeModalComponent,
     HeroComponent,
@@ -41,6 +45,7 @@ import { ContactComponent } from './features/contact/contact.component';
   template: `
     <!-- Backgrounds & Loaders -->
     <app-starry-background></app-starry-background>
+    <app-noise-overlay></app-noise-overlay>
     <app-splash-screen></app-splash-screen>
     <app-custom-cursor></app-custom-cursor>
     <app-scroll-progress></app-scroll-progress>
@@ -54,6 +59,12 @@ import { ContactComponent } from './features/contact/contact.component';
       <app-hero (openResume)="showResumeModal = true"></app-hero>
       <app-about></app-about>
       <app-skills></app-skills>
+      
+      <!-- GitHub Heatmap Section -->
+      <section class="container" style="padding: 0 var(--space-6); position: relative; z-index: 2;">
+        <app-github-heatmap></app-github-heatmap>
+      </section>
+
       <app-projects></app-projects>
       <app-credentials></app-credentials>
       <app-contact></app-contact>
@@ -64,12 +75,9 @@ import { ContactComponent } from './features/contact/contact.component';
 
     <!-- Resume Modal -->
     <app-resume-modal
-      [isOpen]="showResumeModal"
-      (close)="showResumeModal = false">
+      *ngIf="showResumeModal"
+      (closeModal)="showResumeModal = false">
     </app-resume-modal>
-
-    <!-- Global Noise Overlay -->
-    <div class="noise-overlay" aria-hidden="true"></div>
   `,
   styles: [`
     main {

@@ -5,10 +5,12 @@ import { ScrollService } from '../../core/services/scroll.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { SiteConfig } from '../../core/models/site-config.model';
 
+import { MagneticDirective } from '../../shared/directives/magnetic.directive';
+
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MagneticDirective],
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.css'],
 })
