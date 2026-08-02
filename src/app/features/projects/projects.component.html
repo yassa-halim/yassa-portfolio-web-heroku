@@ -41,17 +41,42 @@
           <!-- Scan Line -->
           <div class="scanLine"></div>
 
-          <!-- Image Layer -->
+          <!-- Image Layer — Horizontal Scroll Snap Gallery -->
           <div class="cardImageLayer" [style.background-color]="project.accentColor + '20'">
-            <img
-              *ngIf="project.coverImage"
-              [src]="project.coverImage"
-              [alt]="project.title"
-              class="bgImage"
-              loading="lazy"/>
-            <div *ngIf="!project.coverImage" class="cardImagePlaceholder">
-              <span class="cardImageIcon">{{ project.category === 'Mobile App' ? '📱' : '🌐' }}</span>
-            </div>
+
+            <!-- Has multiple images: scrollable carousel -->
+            <ng-container *ngIf="project.images && project.images.length > 0; else singleImg">
+              <div class="cardCarousel" (click)="$event.stopPropagation(); openModal(project)">
+                <img
+                  *ngFor="let img of project.images"
+                  [src]="img"
+                  [alt]="project.title"
+                  class="carouselSlide"
+                  loading="lazy" />
+              </div>
+              <!-- Dot indicators -->
+              <div class="carouselDots" *ngIf="project.images.length > 1">
+                <span
+                  *ngFor="let img of project.images; let i = index"
+                  class="carouselDot"
+                  [class.activeDot]="i === 0">
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- Fallback: single cover image -->
+            <ng-template #singleImg>
+              <img
+                *ngIf="project.coverImage"
+                [src]="project.coverImage"
+                [alt]="project.title"
+                class="bgImage"
+                loading="lazy"/>
+              <div *ngIf="!project.coverImage" class="cardImagePlaceholder">
+                <span class="cardImageIcon">{{ project.category === 'Mobile App' ? '📱' : '🌐' }}</span>
+              </div>
+            </ng-template>
+
             <div class="imageOverlay"></div>
           </div>
 
@@ -86,7 +111,19 @@
             <span class="speaker"></span>
           </div>
           <div class="deviceScreen">
-            <img [src]="selectedProject.coverImage" [alt]="selectedProject.title" class="screenImage"/>
+            <!-- Scrollable gallery inside mockup when multiple images -->
+            <ng-container *ngIf="selectedProject.images && selectedProject.images.length > 1; else singleScreen">
+              <div class="screenCarousel">
+                <img
+                  *ngFor="let img of selectedProject.images"
+                  [src]="img"
+                  [alt]="selectedProject.title"
+                  class="screenSlide" />
+              </div>
+            </ng-container>
+            <ng-template #singleScreen>
+              <img [src]="selectedProject.coverImage" [alt]="selectedProject.title" class="screenImage"/>
+            </ng-template>
           </div>
           <div class="deviceHomeBar"></div>
         </div>

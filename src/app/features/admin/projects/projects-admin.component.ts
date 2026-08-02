@@ -14,7 +14,7 @@ import { Project } from '../../../core/models/site-config.model';
 export class ProjectsAdminComponent {
   showModal = false;
   editingId: string | null = null;
-  uploadLoading = false;
+  uploadingIndex: number | null = null; // which slot is uploading (-1 = new slot)
   uploadError = '';
   saveLoading = false;
 
@@ -31,6 +31,7 @@ export class ProjectsAdminComponent {
       category: 'Mobile App',
       description: '',
       coverImage: '',
+      images: [],
       techStack: [],
       features: [],
       challenges: '',
@@ -53,7 +54,7 @@ export class ProjectsAdminComponent {
 
   openEditModal(project: Project): void {
     this.editingId = project.id;
-    this.formProject = { ...project };
+    this.formProject = { ...project, images: [...(project.images || [])] };
     this.techInput = project.techStack.join(', ');
     this.featureInput = project.features.join(', ');
     this.uploadError = '';
@@ -63,37 +64,72 @@ export class ProjectsAdminComponent {
   closeModal(): void {
     this.showModal = false;
     this.uploadError = '';
+    this.uploadingIndex = null;
   }
 
-  /** Called when user picks a file from the <input type="file"> */
-  async onImageSelected(event: Event): Promise<void> {
+  /** Trigger hidden file input for a specific slot index, or -1 for adding new */
+  triggerUpload(index: number): void {
+    const inputId = index === -1 ? 'imgNew' : `img${index}`;
+    const el = document.getElementById(inputId) as HTMLInputElement | null;
+    el?.click();
+  }
+
+  /** Handles file selection — uploads and stores into images[] at given index or appends */
+  async onImageSelected(event: Event, index: number): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    // Validate size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       this.uploadError = 'Image must be smaller than 5MB';
+      input.value = '';
       return;
     }
 
-    this.uploadLoading = true;
+    this.uploadingIndex = index;
     this.uploadError = '';
 
     try {
       const url = await this.dataService.uploadImage(file);
-      this.formProject = { ...this.formProject, coverImage: url };
+      const imgs = [...(this.formProject.images || [])];
+
+      if (index === -1) {
+        // New image: append
+        imgs.push(url);
+      } else {
+        // Replace existing
+        imgs[index] = url;
+      }
+
+      // First image always becomes coverImage
+      this.formProject = {
+        ...this.formProject,
+        images: imgs,
+        coverImage: imgs[0] || '',
+      };
     } catch (err: any) {
       this.uploadError = err?.error?.message || 'Upload failed — please try again';
     } finally {
-      this.uploadLoading = false;
-      // Reset the file input so the same file can be re-selected if needed
+      this.uploadingIndex = null;
       input.value = '';
     }
   }
 
-  clearImage(): void {
-    this.formProject = { ...this.formProject, coverImage: '' };
+  removeImage(index: number): void {
+    const imgs = [...(this.formProject.images || [])];
+    imgs.splice(index, 1);
+    this.formProject = {
+      ...this.formProject,
+      images: imgs,
+      coverImage: imgs[0] || '',
+    };
+  }
+
+  setCover(index: number): void {
+    const imgs = [...(this.formProject.images || [])];
+    const [picked] = imgs.splice(index, 1);
+    imgs.unshift(picked);
+    this.formProject = { ...this.formProject, images: imgs, coverImage: picked };
   }
 
   async saveProject(): Promise<void> {

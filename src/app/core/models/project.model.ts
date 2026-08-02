@@ -6,6 +6,7 @@ export interface Project {
   category: string;
   description: string;
   coverImage: string;
+  images?: string[];          // All project screenshots (including cover)
   techStack: string[];
   features: string[];
   challenges: string;

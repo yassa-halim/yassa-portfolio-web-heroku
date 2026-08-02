@@ -197,6 +197,57 @@
   transform: scale(1.08);
 }
 
+/* ===== Horizontal Scroll-Snap Carousel ===== */
+.cardCarousel {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cardCarousel::-webkit-scrollbar { display: none; }
+
+.carouselSlide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scroll-snap-align: start;
+  transition: transform 4s var(--ease-smooth);
+}
+
+.card:hover .carouselSlide { transform: scale(1.04); }
+
+/* Dot Indicators */
+.carouselDots {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 6;
+}
+
+.carouselDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.activeDot {
+  background: var(--white);
+  transform: scale(1.3);
+}
+
 .cardImagePlaceholder {
   display: flex;
   align-items: center;
@@ -511,6 +562,28 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Scrollable carousel inside mockup */
+  .screenCarousel {
+    display: flex;
+    height: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .screenCarousel::-webkit-scrollbar { display: none; }
+
+  .screenSlide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    scroll-snap-align: start;
   }
 }
 
