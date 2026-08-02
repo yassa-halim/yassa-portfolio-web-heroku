@@ -107,28 +107,22 @@
       <div class="modalHero"
            [style.background-color]="selectedProject.accentColor + '15'">
         
-        <!-- Mobile Device Frame Mockup if Mobile App -->
-        <div *ngIf="selectedProject.category === 'Mobile App'" class="mobileDeviceFrame">
-          <div class="deviceNotch">
-            <span class="camera"></span>
-            <span class="speaker"></span>
-          </div>
-          <div class="deviceScreen">
-            <!-- Scrollable gallery inside mockup when multiple images -->
-            <ng-container *ngIf="selectedProject.images && selectedProject.images.length > 1; else singleScreen">
-              <div class="screenCarousel">
-                <img
-                  *ngFor="let img of selectedProject.images"
-                  [src]="img"
-                  [alt]="selectedProject.title"
-                  class="screenSlide" />
-              </div>
-            </ng-container>
-            <ng-template #singleScreen>
-              <img [src]="selectedProject.coverImage" [alt]="selectedProject.title" class="screenImage"/>
-            </ng-template>
-          </div>
-          <div class="deviceHomeBar"></div>
+        <!-- 3D Coverflow Image Gallery -->
+        <div class="coverflow-container">
+          <ng-container *ngIf="selectedProject.images && selectedProject.images.length > 0; else singleScreen">
+            <div
+              *ngFor="let img of selectedProject.images; let i = index"
+              class="coverflow-slide"
+              [ngStyle]="getCoverflowStyle(i)"
+              (click)="setModalImage(i)">
+              <img [src]="img" [alt]="selectedProject.title" class="coverflow-img"/>
+            </div>
+          </ng-container>
+          <ng-template #singleScreen>
+            <div class="coverflow-slide single-slide">
+              <img [src]="selectedProject.coverImage" [alt]="selectedProject.title" class="coverflow-img"/>
+            </div>
+          </ng-template>
         </div>
 
         <div class="modalHeroContent">

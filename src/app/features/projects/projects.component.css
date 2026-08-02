@@ -503,95 +503,43 @@
   color: var(--white);
 }
 
-/* Mobile Device Frame Mockup */
-.mobileDeviceFrame {
-  width: 240px;
+/* 3D Coverflow Container */
+.coverflow-container {
+  position: relative;
+  width: 100%;
   height: 420px;
   margin: 0 auto var(--space-6);
-  background: #000;
-  border: 8px solid #222;
-  border-radius: 36px;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.2);
-  overflow: hidden;
   display: flex;
-  flex-direction: column;
-}
-
-.deviceNotch {
-  width: 110px;
-  height: 20px;
-  background: #222;
-  margin: 0 auto;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 8px;
-  z-index: 10;
-
-  .camera {
-    width: 8px;
-    height: 8px;
-    background: #090909;
-    border-radius: 50%;
-  }
-
-  .speaker {
-    width: 32px;
-    height: 4px;
-    background: #111;
-    border-radius: 2px;
-  }
-}
-
-.deviceScreen {
-  flex: 1;
-  width: 100%;
+  align-items: center;
+  perspective: 1200px;
   overflow: hidden;
-  position: relative;
-  background: #111;
-
-  .screenImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Scrollable carousel inside mockup */
-  .screenCarousel {
-    display: flex;
-    height: 100%;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .screenCarousel::-webkit-scrollbar { display: none; }
-
-  .screenSlide {
-    flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    scroll-snap-align: start;
-  }
 }
 
-.deviceHomeBar {
-  width: 90px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 2px;
+.coverflow-slide {
   position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 220px;
+  aspect-ratio: 9/16;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.05);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              opacity 0.6s ease, 
+              filter 0.6s ease;
+  will-change: transform, opacity, filter, z-index;
+}
+
+.single-slide {
+  position: relative;
   z-index: 10;
+  transform: translateX(0) scale(1) translateZ(0) !important;
+}
+
+.coverflow-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* Case-Study Depth Toggle */

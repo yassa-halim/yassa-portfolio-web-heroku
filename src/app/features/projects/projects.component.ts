@@ -51,14 +51,66 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     );
   }
 
+  activeModalIndex = 0;
+
   openModal(project: Project): void {
     this.selectedProject = project;
+    this.activeModalIndex = 0;
     document.body.style.overflow = 'hidden';
   }
 
   closeModal(): void {
     this.selectedProject = null;
     document.body.style.overflow = '';
+  }
+
+  setModalImage(index: number): void {
+    this.activeModalIndex = index;
+  }
+
+  getCoverflowStyle(index: number): any {
+    if (!this.selectedProject?.images) return {};
+    
+    const total = this.selectedProject.images.length;
+    let diff = index - this.activeModalIndex;
+    
+    // Wrap-around math for infinite circular feel
+    if (total > 2) {
+      if (diff > Math.floor(total / 2)) diff -= total;
+      if (diff < -Math.floor(total / 2)) diff += total;
+    }
+
+    if (diff === 0) {
+      return {
+        transform: 'translateX(0) scale(1) translateZ(0)',
+        zIndex: 10,
+        opacity: 1,
+        filter: 'brightness(1)',
+        cursor: 'default'
+      };
+    } else {
+      const direction = diff > 0 ? 1 : -1;
+      const absDiff = Math.abs(diff);
+      
+      if (absDiff > 2) {
+        return {
+          transform: `translateX(${direction * 100}%) scale(0.6) translateZ(-400px)`,
+          zIndex: 0,
+          opacity: 0,
+          pointerEvents: 'none'
+        };
+      }
+
+      // X translation pushes them to sides, scale makes them smaller, Z pushes them back
+      // Brightness makes them dark ("تغمق لما ترحع خلف الكرت")
+      return {
+        transform: `translateX(${direction * (30 + absDiff * 35)}%) scale(${1 - absDiff * 0.15}) translateZ(${-absDiff * 100}px)`,
+        zIndex: 10 - absDiff,
+        opacity: 1,
+        filter: `brightness(${1 - absDiff * 0.5})`,
+        cursor: 'pointer'
+      };
+    }
   }
 
   onCardTilt(e: MouseEvent, card: HTMLElement): void {
