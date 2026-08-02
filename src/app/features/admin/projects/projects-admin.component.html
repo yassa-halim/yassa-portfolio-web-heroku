@@ -21,7 +21,10 @@
     <tbody>
       <tr *ngFor="let p of dataService.projects">
         <td style="display: flex; align-items: center; gap: 12px">
-          <img [src]="p.coverImage" [alt]="p.title" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover" />
+          <div class="thumb-wrap">
+            <img *ngIf="p.coverImage" [src]="p.coverImage" [alt]="p.title" class="thumb" />
+            <span *ngIf="!p.coverImage" class="thumb-placeholder">📷</span>
+          </div>
           <div>
             <strong style="color: var(--white); display: block">{{ p.title }}</strong>
             <span style="color: var(--muted); font-size: 0.8rem">{{ p.subtitle }}</span>
@@ -78,9 +81,45 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Cover Image URL</label>
-          <input type="text" [(ngModel)]="formProject.coverImage" name="coverImage" class="form-control" />
+          <label>Accent Color</label>
+          <input type="color" [(ngModel)]="formProject.accentColor" name="accentColor" class="form-control color-input" />
         </div>
+      </div>
+
+      <!-- Cover Image Upload -->
+      <div class="form-group">
+        <label>Cover Image</label>
+
+        <!-- Upload Zone -->
+        <div class="upload-zone" *ngIf="!formProject.coverImage" [class.uploading]="uploadLoading">
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            class="upload-input"
+            (change)="onImageSelected($event)"
+            [disabled]="uploadLoading" />
+          <label for="imageUpload" class="upload-label">
+            <span *ngIf="!uploadLoading">
+              <span class="upload-icon">📸</span>
+              <span class="upload-text">Click to upload project image</span>
+              <span class="upload-hint">JPEG, PNG, WebP — max 5MB</span>
+            </span>
+            <span *ngIf="uploadLoading" class="upload-spinner">⏳ Uploading...</span>
+          </label>
+        </div>
+
+        <!-- Preview -->
+        <div class="image-preview" *ngIf="formProject.coverImage">
+          <img [src]="formProject.coverImage" alt="Cover preview" class="preview-img" />
+          <div class="preview-actions">
+            <span class="preview-label">✅ Image uploaded</span>
+            <button type="button" class="btn btn-danger btn-sm" (click)="clearImage()">Remove</button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <p class="upload-error" *ngIf="uploadError">⚠️ {{ uploadError }}</p>
       </div>
 
       <div class="form-group">
@@ -98,6 +137,16 @@
         <input type="text" [(ngModel)]="featureInput" name="features" class="form-control" placeholder="Real-time sync, Custom animations, Push notifications" />
       </div>
 
+      <div class="form-group">
+        <label>Architectural Challenge</label>
+        <textarea [(ngModel)]="formProject.challenges" name="challenges" rows="2" class="form-control" placeholder="What was the main technical challenge?"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Engineering Solution</label>
+        <textarea [(ngModel)]="formProject.solutions" name="solutions" rows="2" class="form-control" placeholder="How did you solve it?"></textarea>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label>GitHub Repository URL</label>
@@ -109,9 +158,20 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label>Status</label>
+        <select [(ngModel)]="formProject.status" name="status" class="form-control">
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Project</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saveLoading">
+          {{ saveLoading ? 'Saving...' : (editingId ? 'Update Project' : 'Save Project') }}
+        </button>
       </div>
     </form>
   </div>

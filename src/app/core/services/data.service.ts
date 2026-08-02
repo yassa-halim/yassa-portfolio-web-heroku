@@ -149,6 +149,23 @@ export class DataService {
     }
   }
 
+  /**
+   * Upload an image file to the backend and get back a base64 data URL.
+   * The returned URL can be stored directly in MongoDB (e.g. project.coverImage).
+   */
+  async uploadImage(file: File): Promise<string> {
+    const token = localStorage.getItem('adminToken');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await firstValueFrom(
+      this.http.post<{ url: string }>(`${environment.apiUrl}/upload`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+    return res.url;
+  }
+
   // Projects
   async addProject(project: Omit<Project, 'id'>): Promise<void> {
     const newProject: Project = { ...project, id: Date.now().toString() };

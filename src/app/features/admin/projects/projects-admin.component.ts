@@ -14,41 +14,40 @@ import { Project } from '../../../core/models/site-config.model';
 export class ProjectsAdminComponent {
   showModal = false;
   editingId: string | null = null;
+  uploadLoading = false;
+  uploadError = '';
+  saveLoading = false;
 
-  formProject: Partial<Project> = {
-    title: '',
-    subtitle: '',
-    category: 'Mobile App',
-    description: '',
-    coverImage: '/uploads/1783574845336-277703199-1.jpg',
-    techStack: [],
-    features: [],
-    githubUrl: '',
-    liveUrl: '',
-    status: 'published',
-  };
-
+  formProject: Partial<Project> = this.blankForm();
   techInput = '';
   featureInput = '';
 
   constructor(public dataService: DataService) {}
 
-  openAddModal(): void {
-    this.editingId = null;
-    this.formProject = {
+  private blankForm(): Partial<Project> {
+    return {
       title: '',
       subtitle: '',
       category: 'Mobile App',
       description: '',
-      coverImage: '/uploads/1783574845336-277703199-1.jpg',
-      techStack: ['Flutter', 'Dart', 'Firebase'],
-      features: ['Real-time sync', 'Custom animations'],
-      githubUrl: 'https://github.com/yassahalim/',
+      coverImage: '',
+      techStack: [],
+      features: [],
+      challenges: '',
+      solutions: '',
+      githubUrl: '',
       liveUrl: '',
       status: 'published',
+      accentColor: '#A55B4B',
     };
-    this.techInput = this.formProject.techStack?.join(', ') || '';
-    this.featureInput = this.formProject.features?.join(', ') || '';
+  }
+
+  openAddModal(): void {
+    this.editingId = null;
+    this.formProject = this.blankForm();
+    this.techInput = 'Flutter, Dart, Firebase';
+    this.featureInput = 'Real-time sync, Custom animations';
+    this.uploadError = '';
     this.showModal = true;
   }
 
@@ -57,14 +56,47 @@ export class ProjectsAdminComponent {
     this.formProject = { ...project };
     this.techInput = project.techStack.join(', ');
     this.featureInput = project.features.join(', ');
+    this.uploadError = '';
     this.showModal = true;
   }
 
   closeModal(): void {
     this.showModal = false;
+    this.uploadError = '';
   }
 
-  saveProject(): void {
+  /** Called when user picks a file from the <input type="file"> */
+  async onImageSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    // Validate size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.uploadError = 'Image must be smaller than 5MB';
+      return;
+    }
+
+    this.uploadLoading = true;
+    this.uploadError = '';
+
+    try {
+      const url = await this.dataService.uploadImage(file);
+      this.formProject = { ...this.formProject, coverImage: url };
+    } catch (err: any) {
+      this.uploadError = err?.error?.message || 'Upload failed — please try again';
+    } finally {
+      this.uploadLoading = false;
+      // Reset the file input so the same file can be re-selected if needed
+      input.value = '';
+    }
+  }
+
+  clearImage(): void {
+    this.formProject = { ...this.formProject, coverImage: '' };
+  }
+
+  async saveProject(): Promise<void> {
     if (!this.formProject.title || !this.formProject.description) return;
 
     const techStack = this.techInput.split(',').map(s => s.trim()).filter(Boolean);
@@ -77,13 +109,17 @@ export class ProjectsAdminComponent {
       slug: (this.formProject.title || '').toLowerCase().replace(/\s+/g, '-'),
     } as Project;
 
-    if (this.editingId) {
-      this.dataService.updateProject(this.editingId, projectData);
-    } else {
-      this.dataService.addProject(projectData);
+    this.saveLoading = true;
+    try {
+      if (this.editingId) {
+        await this.dataService.updateProject(this.editingId, projectData);
+      } else {
+        await this.dataService.addProject(projectData);
+      }
+      this.closeModal();
+    } finally {
+      this.saveLoading = false;
     }
-
-    this.closeModal();
   }
 
   deleteProject(id: string): void {
