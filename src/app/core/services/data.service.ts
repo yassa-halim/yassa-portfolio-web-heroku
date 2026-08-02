@@ -66,41 +66,50 @@ export class DataService {
 
 
   /**
-   * Fetch initial live data from Node.js Express Backend
+   * Fetch initial live data from Node.js Express Backend (Single Source of Truth)
    */
   async fetchDataFromBackend(): Promise<void> {
     try {
-      // Projects
-      const projects = await firstValueFrom(this.http.get<Project[]>(`${environment.apiUrl}/projects`));
-      if (projects && projects.length > 0) {
-        this.projectsSignal.set(projects);
-        this.saveToStorage('projects', projects);
+      const [
+        projectsRes,
+        skillsRes,
+        coursesRes,
+        awardsRes,
+        configRes,
+        educationRes,
+        experienceRes
+      ] = await Promise.allSettled([
+        firstValueFrom(this.http.get<Project[]>(`${environment.apiUrl}/projects`)),
+        firstValueFrom(this.http.get<Skill[]>(`${environment.apiUrl}/skills`)),
+        firstValueFrom(this.http.get<Course[]>(`${environment.apiUrl}/credentials/courses`)),
+        firstValueFrom(this.http.get<Award[]>(`${environment.apiUrl}/credentials/awards`)),
+        firstValueFrom(this.http.get<SiteConfig>(`${environment.apiUrl}/settings`)),
+        firstValueFrom(this.http.get<Education[]>(`${environment.apiUrl}/education`)),
+        firstValueFrom(this.http.get<Experience[]>(`${environment.apiUrl}/experience`))
+      ]);
+
+      if (projectsRes.status === 'fulfilled' && projectsRes.value) {
+        this.projectsSignal.set(projectsRes.value);
+        this.saveToStorage('projects', projectsRes.value);
       }
 
-      // Skills
-      const skills = await firstValueFrom(this.http.get<Skill[]>(`${environment.apiUrl}/skills`));
-      if (skills && skills.length > 0) {
-        this.skillsSignal.set(skills);
-        this.saveToStorage('skills', skills);
+      if (skillsRes.status === 'fulfilled' && skillsRes.value) {
+        this.skillsSignal.set(skillsRes.value);
+        this.saveToStorage('skills', skillsRes.value);
       }
 
-      // Courses
-      const courses = await firstValueFrom(this.http.get<Course[]>(`${environment.apiUrl}/credentials/courses`));
-      if (courses && courses.length > 0) {
-        this.coursesSignal.set(courses);
-        this.saveToStorage('courses', courses);
+      if (coursesRes.status === 'fulfilled' && coursesRes.value) {
+        this.coursesSignal.set(coursesRes.value);
+        this.saveToStorage('courses', coursesRes.value);
       }
 
-      // Awards
-      const awards = await firstValueFrom(this.http.get<Award[]>(`${environment.apiUrl}/credentials/awards`));
-      if (awards && awards.length > 0) {
-        this.awardsSignal.set(awards);
-        this.saveToStorage('awards', awards);
+      if (awardsRes.status === 'fulfilled' && awardsRes.value) {
+        this.awardsSignal.set(awardsRes.value);
+        this.saveToStorage('awards', awardsRes.value);
       }
 
-      // Settings
-      const config = await firstValueFrom(this.http.get<SiteConfig>(`${environment.apiUrl}/settings`));
-      if (config) {
+      if (configRes.status === 'fulfilled' && configRes.value) {
+        const config = configRes.value;
         const defaults = this.defaultSiteConfig();
         const mergedConfig: SiteConfig = {
           ...defaults,
@@ -115,18 +124,14 @@ export class DataService {
         this.saveToStorage('siteConfig', mergedConfig);
       }
 
-      // Education
-      const education = await firstValueFrom(this.http.get<Education[]>(`${environment.apiUrl}/education`));
-      if (education && education.length > 0) {
-        this.educationSignal.set(education);
-        this.saveToStorage('education', education);
+      if (educationRes.status === 'fulfilled' && educationRes.value) {
+        this.educationSignal.set(educationRes.value);
+        this.saveToStorage('education', educationRes.value);
       }
 
-      // Experience
-      const experience = await firstValueFrom(this.http.get<Experience[]>(`${environment.apiUrl}/experience`));
-      if (experience && experience.length > 0) {
-        this.experienceSignal.set(experience);
-        this.saveToStorage('experience', experience);
+      if (experienceRes.status === 'fulfilled' && experienceRes.value) {
+        this.experienceSignal.set(experienceRes.value);
+        this.saveToStorage('experience', experienceRes.value);
       }
     } catch (err) {
       console.warn('[DataService] Express API Backend offline, running with cached data.', err);
